@@ -180,10 +180,30 @@ export default {
   },
 
   watch: {
-    async "servicosStore.servico"(newVal) {
-      this.loadingServico = true;
-      await this.getAllServicos();
-      this.loadingServico = false;
+    "servicosStore.servicos": {
+      deep: true,
+      handler(newServicos) {
+        newServicos.forEach((novoServico) => {
+          const index = this.servicos.findIndex(
+            (servico) => servico._id === novoServico._id
+          );
+
+          if (index !== -1) {
+            // Verifica se o pedido realmente mudou antes de atualizar
+            if (
+              JSON.stringify(this.servicos[index]) !== JSON.stringify(novoServico)
+            ) {
+              this.servicos.splice(index, 1, {
+                ...this.servicos[index],
+                ...novoServico,
+              });
+            }
+          } else {
+            // Se o pedido não existe, adiciona o novo pedido
+            this.servicos.push(novoServico);
+          }
+        });
+      },
     },
   },
 };

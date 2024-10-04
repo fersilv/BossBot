@@ -22,11 +22,6 @@ export const useContasStore = defineStore("contas", {
             }
           });
         }
-        console.log(
-          import.meta.env.VITE_URL_BACKEND + "conta",
-          "Response: ",
-          response
-        );
       } catch (error) {
         console.log(error);
       }

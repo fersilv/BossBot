@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { useContasStore } from "./contas";
 import { useAppStore } from "./app";
 import { useServicosStore } from "./servicos";
+import { usePedidosStore } from "./pedidos";
 
 // Definindo o tipo de evento padrão
 type DefaultEventsMap = {
@@ -19,6 +20,7 @@ export const useSocketStore = defineStore("socket", {
     response: null as any,
     error: null as any,
     action: null as any,
+    tarefas: {} as any
   }),
   actions: {
     connect() {
@@ -44,6 +46,22 @@ export const useSocketStore = defineStore("socket", {
       this.socket.on("action", (data: any) => {
         this.acoes(data);
         this.action = data;
+      });
+
+      this.socket.on("tarefas", (data: any) => {
+        try{
+        this.tarefas = data;
+        }catch(err){
+          this.tarefas = {
+            pending: 0,
+            processing: 0,
+            inprogress: 0,
+            error: 0,
+            completed: 0,
+            canceled: 0,
+          }
+          console.log("Erro socket: ", err);
+        }
       });
 
       this.socket.on("disconnect", () => {
@@ -75,6 +93,10 @@ export const useSocketStore = defineStore("socket", {
           const servicosStore = useServicosStore();
           servicosStore.acoes(data);
           break;
+          case "pedido":
+            const pedidosStore = usePedidosStore();
+            pedidosStore.acoes(data);
+            break;
         default:
           console.log("store desconhecido: ", data);
           break;

@@ -7,10 +7,10 @@
         <span>Dashboard</span>
       </v-btn>
 
-      <v-btn>
-        <v-icon>mdi-music-note</v-icon>
+      <v-btn  to="/pedidos">
+        <v-icon>mdi-account-heart</v-icon>
 
-        <span>Music</span>
+        <span>Pedidos</span>
       </v-btn>
 
       <v-btn to="/contas">
