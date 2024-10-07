@@ -122,7 +122,8 @@ export default {
       canceled: 0,
     });
 
-    const getPedidos = () => {
+    const getPedidos = async () => {
+      await pedidosStore.getAllPedidos();
       const pedidosData = pedidosStore.pedidos;
 
       pedidos.pending = pedidosData.filter(

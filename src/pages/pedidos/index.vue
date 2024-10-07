@@ -169,10 +169,14 @@
           <template v-slot:item.service.category="{ item }">
             <v-icon>mdi-{{ item.service.category.toLowerCase() }}</v-icon>
           </template>
-          
+
           <template v-slot:item.alertError="{ item }">
-            <v-icon>{{ alertComentarios(item.comments) ? 'mdi-alert-circle-outline' : 'mdi-check-circle-outline' }}</v-icon>
-            </template>
+            <v-icon>{{
+              alertComentarios(item.comments)
+                ? "mdi-alert-circle-outline"
+                : "mdi-check-circle-outline"
+            }}</v-icon>
+          </template>
 
           <!-- Renderiza Entregue -->
           <template v-slot:item.comprado="{ item }">
@@ -206,7 +210,11 @@
               @click="$refs.ModalComentarios.openModal(item)"
               rounded
             >
-            {{ alertComentarios(item.comments) ? 'Analizar comentários' : 'Ver comentários' }}
+              {{
+                alertComentarios(item.comments)
+                  ? "Analizar comentários"
+                  : "Ver comentários"
+              }}
             </v-btn>
           </template>
         </v-data-table>
@@ -262,7 +270,7 @@ export default {
           sortable: true,
         },
         {
-          title:"",
+          title: "",
           align: "center",
           value: "alertError",
         },
@@ -291,15 +299,13 @@ export default {
     };
   },
   async mounted() {
-    await this.pedidosStore.getAllPedidos();
-    this.pedidos = this.pedidosStore.pedidos;
-    this.loading = false;
-    this.atualizarStatusPedidos();
+    await this.atualizarPedidos();
   },
   methods: {
     async atualizarPedidos() {
-      await this.pedidosStore.getPedidos();
+      await this.pedidosStore.getAllPedidos();
       this.pedidos = this.pedidosStore.pedidos;
+      this.loading = false;
       this.atualizarStatusPedidos();
     },
     atualizarStatusPedidos() {
@@ -363,17 +369,28 @@ export default {
           return status;
       }
     },
-    alertComentarios(comentarios)
-    {
+    alertComentarios(comentarios) {
       // Verifica se tem comentario com status  de erro ou revisao
-      if (comentarios.some(comentario => comentario.statusComentario == 'Error' || comentario.statusComentario == 'InRevision'))
-      {
+      if (
+        comentarios.some(
+          (comentario) =>
+            comentario.statusComentario == "Error" ||
+            comentario.statusComentario == "InRevision"
+        )
+      ) {
         return true;
-      }
-      else
-      {
+      } else {
         return false;
       }
+    },
+
+    watch: {
+      "pedidosStore.pedido": {
+        handler() {
+          this.atualizarPedidos();
+        },
+        deep: true,
+      },
     },
   },
   computed: {
@@ -420,35 +437,6 @@ export default {
       return totalFinalizadas > 0
         ? Math.round((this.statusPedidos.canceled / totalFinalizadas) * 100)
         : 0;
-    },
-  },
-  watch: {
-    "pedidosStore.pedidos": {
-      deep: true,
-      handler(newPedidos) {
-        newPedidos.forEach((novoPedido) => {
-          const index = this.pedidos.findIndex(
-            (pedido) => pedido._id === novoPedido._id
-          );
-
-          if (index !== -1) {
-            // Verifica se o pedido realmente mudou antes de atualizar
-            if (
-              JSON.stringify(this.pedidos[index]) !== JSON.stringify(novoPedido)
-            ) {
-              this.pedidos.splice(index, 1, {
-                ...this.pedidos[index],
-                ...novoPedido,
-              });
-            }
-          } else {
-            // Se o pedido não existe, adiciona o novo pedido
-            this.pedidos.push(novoPedido);
-          }
-        });
-        // Recalcula os status apenas se houve mudanças
-        this.atualizarStatusPedidos();
-      },
     },
   },
 };

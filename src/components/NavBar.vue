@@ -1,6 +1,6 @@
 <template>
   <v-layout class="overflow-visible" style="height: 56px">
-    <v-bottom-navigation v-model="value" :bg-color="color" mode="shift" fixed>
+    <v-bottom-navigation v-model="value" :bg-color="color" mode="shift" class="position-fixed">
       <v-btn to="/">
         <v-icon>mdi-dots-hexagon</v-icon>
 
@@ -50,3 +50,10 @@ export default {
   },
 };
 </script>
+
+<style>
+html {
+  overflow: auto;
+  max-height: calc(100vh - 56px)!important;
+}
+</style>

@@ -15,26 +15,26 @@ export const usePedidosStore = defineStore('pedidos', {
             await axios.get(import.meta.env.VITE_URL_BACKEND + "pedido")
           ).data;
   
-          if (this.pedidos.length == 0) {
+          // if (this.pedidos.length == 0) {
             // Se ainda não tem nenhum pedido, atribui o response inteiro
             this.pedidos = await response;
-          } else {
-            // verifica se aquela conta já existe para evitar duplicatas ou atualizar os dados
-            response.forEach((item: any) => {
-              const existingPedido = this.pedidos.find(
-                (pedido: any) => pedido._id == item._id
-              );
+          // } else {
+          //   // verifica se aquela conta já existe para evitar duplicatas ou atualizar os dados
+          //   response.forEach((item: any) => {
+          //     const existingPedido = this.pedidos.find(
+          //       (pedido: any) => pedido._id == item._id
+          //     );
   
-              if (existingPedido) {
-                // Se o pedido já existe, atualiza os dados
-                Object.assign(existingPedido, item);
-              } else {
-                // Se o pedido não existe, adiciona ao array
-                this.pedidos.push(item);
+          //     if (existingPedido) {
+          //       // Se o pedido já existe, atualiza os dados
+          //       Object.assign(existingPedido, item);
+          //     } else {
+          //       // Se o pedido não existe, adiciona ao array
+          //       this.pedidos.push(item);
                 this.pedido++;
-              }
-            });
-          }
+            //   }
+            // });
+          // }
 
       } catch (error) {
           console.log(error);

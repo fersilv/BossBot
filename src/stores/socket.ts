@@ -48,6 +48,12 @@ export const useSocketStore = defineStore("socket", {
         this.action = data;
       });
 
+      this.socket.on("googleIa", (data: any) => {
+        const appStore = useAppStore();
+        console.log("googleIa: ", data);
+        appStore.googleIa = data;
+      });
+
       this.socket.on("tarefas", (data: any) => {
         try{
         this.tarefas = data;
