@@ -107,6 +107,7 @@
 <script>
 import { usePedidosStore } from "@/stores/pedidos";
 import { reactive, watch } from "vue";
+import _ from "lodash"; // Importa lodash para usar debounce
 
 export default {
   setup() {
@@ -122,40 +123,28 @@ export default {
       canceled: 0,
     });
 
-    const getPedidos = async () => {
+    // Função debounce para limitar a quantidade de chamadas de getPedidos
+    const debounceGetPedidos = _.debounce(async () => {
       await pedidosStore.getAllPedidos();
       const pedidosData = pedidosStore.pedidos;
 
-      pedidos.pending = pedidosData.filter(
-        (pedido) => pedido.status === "Pending"
-      ).length;
-      pedidos.processing = pedidosData.filter(
-        (pedido) => pedido.status === "Processing"
-      ).length;
-      pedidos.inprogress = pedidosData.filter(
-        (pedido) => pedido.status === "Inprogress"
-      ).length;
-      pedidos.error = pedidosData.filter(
-        (pedido) => pedido.status === "Error"
-      ).length;
-      pedidos.completed = pedidosData.filter(
-        (pedido) => pedido.status === "Completed"
-      ).length;
-      pedidos.canceled = pedidosData.filter(
-        (pedido) => pedido.status === "Canceled"
-      ).length;
-    };
+      pedidos.pending = pedidosData.filter((pedido) => pedido.status === "Pending").length;
+      pedidos.processing = pedidosData.filter((pedido) => pedido.status === "Processing").length;
+      pedidos.inprogress = pedidosData.filter((pedido) => pedido.status === "Inprogress").length;
+      pedidos.error = pedidosData.filter((pedido) => pedido.status === "Error").length;
+      pedidos.completed = pedidosData.filter((pedido) => pedido.status === "Completed").length;
+      pedidos.canceled = pedidosData.filter((pedido) => pedido.status === "Canceled").length;
+    }, 500); // Aguarda 500ms antes de executar o getPedidos
 
-    // Monitorar mudanças no store de pedidos para atualizar os gráficos
-    // Monitorar mudanças no store de pedidos para atualizar os gráficos
+    // Watch para o estado do store e usa debounce
     watch(
-      () => pedidosStore.pedido, // O que observar
+      () => pedidosStore.pedido,
       () => {
-        // Ação quando o valor mudar
-        getPedidos();
+        debounceGetPedidos(); // Chama a função debounce para evitar chamadas repetitivas
       },
-      { deep: true } // Opções, como deep: true
+      { deep: true }
     );
+
     return {
       pedidos,
       pedidosStore,
@@ -199,9 +188,6 @@ export default {
         ? Math.round((this.pedidos.canceled / totalFinalizadas) * 100)
         : 0;
     },
-  },
-  async mounted() {
-    await this.pedidosStore.getAllPedidos();
   },
 };
 </script>

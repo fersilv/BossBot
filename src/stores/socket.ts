@@ -20,7 +20,7 @@ export const useSocketStore = defineStore("socket", {
     response: null as any,
     error: null as any,
     action: null as any,
-    tarefas: {} as any
+    tarefas: {} as any,
   }),
   actions: {
     connect() {
@@ -29,7 +29,9 @@ export const useSocketStore = defineStore("socket", {
         return;
       }
 
-      this.socket = io("http://localhost:3000");
+      this.socket = io("https://bossbot.serveo.net", {
+        transports: ["websocket"],
+      });
 
       this.socket.on("connect", () => {
         console.log("Connected to Socket.IO server");
@@ -55,9 +57,9 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("tarefas", (data: any) => {
-        try{
-        this.tarefas = data;
-        }catch(err){
+        try {
+          this.tarefas = data;
+        } catch (err) {
           this.tarefas = {
             pending: 0,
             processing: 0,
@@ -65,7 +67,7 @@ export const useSocketStore = defineStore("socket", {
             error: 0,
             completed: 0,
             canceled: 0,
-          }
+          };
           console.log("Erro socket: ", err);
         }
       });
@@ -99,10 +101,10 @@ export const useSocketStore = defineStore("socket", {
           const servicosStore = useServicosStore();
           servicosStore.acoes(data);
           break;
-          case "pedido":
-            const pedidosStore = usePedidosStore();
-            pedidosStore.acoes(data);
-            break;
+        case "pedido":
+          const pedidosStore = usePedidosStore();
+          pedidosStore.acoes(data);
+          break;
         default:
           console.log("store desconhecido: ", data);
           break;
