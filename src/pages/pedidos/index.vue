@@ -3,7 +3,7 @@
 
     <progress-pedidos :ref="ProgressPedidos" />
 
-    <v-row class="my-5">
+    <v-row class="pa-10">
       <v-col>
         <h3>PEDIDOS</h3>
       </v-col>

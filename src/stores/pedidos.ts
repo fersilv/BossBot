@@ -15,7 +15,6 @@ export const usePedidosStore = defineStore("pedidos", {
         ).data;
 
         this.pedidos = await response;
-        this.pedido++;
       } catch (error) {
         console.log(error);
       }
