@@ -1,27 +1,29 @@
 <template>
   <v-layout class="overflow-visible" style="height: 56px">
-    <v-bottom-navigation v-model="value" :bg-color="color" mode="shift" class="position-fixed">
-      <v-btn to="/">
+    <v-bottom-navigation
+      v-model="value"
+      :bg-color="color"
+      mode="shift"
+      class="position-fixed"
+      @change="handleNavigation"
+    >
+      <v-btn :value="0" to="/" exact>
         <v-icon>mdi-dots-hexagon</v-icon>
-
         <span>Dashboard</span>
       </v-btn>
 
-      <v-btn  to="/pedidos">
+      <v-btn :value="1" to="/pedidos" exact>
         <v-icon>mdi-account-heart</v-icon>
-
         <span>Pedidos</span>
       </v-btn>
 
-      <v-btn to="/contas">
+      <v-btn :value="2" to="/contas" exact>
         <v-icon>mdi-robot</v-icon>
-
         <span>Contas</span>
       </v-btn>
 
-      <v-btn to="/servicos">
+      <v-btn :value="3" to="/servicos" exact>
         <v-icon>mdi-briefcase-arrow-up-down</v-icon>
-
         <span>Serviços</span>
       </v-btn>
     </v-bottom-navigation>
@@ -30,7 +32,7 @@
 
 <script>
 export default {
-  data: () => ({ value: 1 }),
+  data: () => ({ value: 0 }), // Coloquei para começar no Dashboard
 
   computed: {
     color() {
@@ -46,6 +48,14 @@ export default {
         default:
           return "blue-grey";
       }
+    },
+  },
+
+  methods: {
+    handleNavigation() {
+      // Quando trocar o valor, o método é chamado
+      const routes = ["/", "/pedidos", "/contas", "/servicos"];
+      this.$router.push(routes[this.value]);
     },
   },
 };

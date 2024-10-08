@@ -149,7 +149,7 @@ export default {
     // Monitorar mudanças no store de pedidos para atualizar os gráficos
     // Monitorar mudanças no store de pedidos para atualizar os gráficos
     watch(
-      () => pedidosStore.pedidos, // O que observar
+      () => pedidosStore.pedido, // O que observar
       () => {
         // Ação quando o valor mudar
         getPedidos();

@@ -1,131 +1,7 @@
 <template>
   <v-container class="pa-10" fluid>
-    <v-card class="text-center">
-      <v-card-subtitle>PEDIDOS</v-card-subtitle>
-      <v-row class="text-center">
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="statusPedidos.pending"
-                :max="totalPedidos"
-                color="primary"
-                size="80"
-                class="mb-5"
-              >
-                {{ statusPedidos.pending }}
-              </v-progress-circular>
-              <br /><spam> PENDENTE </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="statusPedidos.processing"
-                :max="totalPedidos"
-                color="info"
-                size="80"
-                class="mb-5"
-              >
-                {{ statusPedidos.processing }}
-              </v-progress-circular>
-              <br /><spam> PROCESSANDO </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="statusPedidos.inprogress"
-                :max="totalPedidos"
-                color="warning"
-                size="80"
-                class="mb-5"
-              >
-                {{ statusPedidos.inprogress }}
-              </v-progress-circular>
-              <br /><spam> EM PROGRESSO </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <!-- Adicionando o parcial -->
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="partialPercent"
-                :max="100"
-                color="purple-darken-4"
-                class="mb-5"
-                :rotate="180"
-                :size="80"
-                :width="15"
-              >
-                {{ partialPercent }}%
-              </v-progress-circular>
-              <br /><spam> PARCIAL </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="falhaPercent"
-                :max="100"
-                color="red"
-                :size="80"
-                class="mb-5"
-                :rotate="180"
-                :width="15"
-              >
-                {{ falhaPercent }}%
-              </v-progress-circular>
-              <br /><spam> FALHA </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="concluidoPercent"
-                :max="100"
-                color="success"
-                class="mb-5"
-                :rotate="180"
-                :size="80"
-                :width="15"
-              >
-                {{ concluidoPercent }}%
-              </v-progress-circular>
-              <br /><spam> ENTREGUE </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="">
-          <v-card class="text-center" elevation="0">
-            <v-card-text>
-              <v-progress-circular
-                :value="canceladoPercent"
-                :max="100"
-                color="gray"
-                class="mb-5"
-                :rotate="180"
-                :size="80"
-                :width="15"
-              >
-                {{ canceladoPercent }}%
-              </v-progress-circular>
-              <br /><spam> CANCELADO </spam>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
+
+    <progress-pedidos :ref="ProgressPedidos" />
 
     <v-row class="my-5">
       <v-col>
@@ -227,11 +103,12 @@
 <script>
 import { usePedidosStore } from "@/stores/pedidos";
 import ModalComentarios from "@/components/pedidos/ModalComentarios.vue";
+import ProgressPedidos from "@/components/pedidos/ProgressPedidos.vue";
 import { useSocketStore } from "@/stores/socket";
 
 export default {
   name: "Pedidos",
-  components: { ModalComentarios },
+  components: { ModalComentarios, ProgressPedidos },
   setup() {
     return {
       pedidosStore: usePedidosStore(),
@@ -306,25 +183,6 @@ export default {
       await this.pedidosStore.getAllPedidos();
       this.pedidos = this.pedidosStore.pedidos;
       this.loading = false;
-      this.atualizarStatusPedidos();
-    },
-    atualizarStatusPedidos() {
-      // Reiniciar contagem de status
-      this.statusPedidos = {
-        pending: 0,
-        processing: 0,
-        inprogress: 0,
-        partial: 0, // Incluindo parcial
-        error: 0,
-        completed: 0,
-        canceled: 0,
-      };
-      // Contar status dos pedidos
-      this.pedidos.forEach((item) => {
-        if (item.status.toLowerCase() in this.statusPedidos) {
-          this.statusPedidos[item.status.toLowerCase()] += 1;
-        }
-      });
     },
     badgeStatus(status) {
       switch (status.toLowerCase()) {
@@ -370,7 +228,6 @@ export default {
       }
     },
     alertComentarios(comentarios) {
-      // Verifica se tem comentario com status  de erro ou revisao
       if (
         comentarios.some(
           (comentario) =>
@@ -383,60 +240,19 @@ export default {
         return false;
       }
     },
-
-    watch: {
-      "pedidosStore.pedido": {
-        handler() {
-          this.atualizarPedidos();
-        },
-        deep: true,
-      },
-    },
+  },
+  watch: {
+    'pedidosStore.pedido': {
+      deep: true,
+      handler() {
+        this.atualizarPedidos();
+      }
+    }
   },
   computed: {
     totalPedidos() {
-      return Object.values(this.statusPedidos).reduce((a, b) => a + b, 0);
-    },
-    concluidoPercent() {
-      const totalFinalizadas =
-        this.statusPedidos.completed +
-        this.statusPedidos.canceled +
-        this.statusPedidos.partial + // Incluindo parcial
-        this.statusPedidos.error;
-
-      return totalFinalizadas > 0
-        ? Math.round((this.statusPedidos.completed / totalFinalizadas) * 100)
-        : 0;
-    },
-    partialPercent() {
-      const totalFinalizadas =
-        this.statusPedidos.completed +
-        this.statusPedidos.canceled +
-        this.statusPedidos.partial +
-        this.statusPedidos.error;
-      return totalFinalizadas > 0
-        ? Math.round((this.statusPedidos.partial / totalFinalizadas) * 100)
-        : 0;
-    },
-    falhaPercent() {
-      const totalFinalizadas =
-        this.statusPedidos.completed +
-        this.statusPedidos.canceled +
-        this.statusPedidos.partial +
-        this.statusPedidos.error;
-      return totalFinalizadas > 0
-        ? Math.round((this.statusPedidos.error / totalFinalizadas) * 100)
-        : 0;
-    },
-    canceladoPercent() {
-      const totalFinalizadas =
-        this.statusPedidos.completed +
-        this.statusPedidos.canceled +
-        this.statusPedidos.partial +
-        this.statusPedidos.error;
-      return totalFinalizadas > 0
-        ? Math.round((this.statusPedidos.canceled / totalFinalizadas) * 100)
-        : 0;
+      const total = Object.values(this.statusPedidos).reduce((a, b) => a + b, 0);
+      return total > 0 ? total : 1; // Ajuste para evitar valor 0 como max
     },
   },
 };

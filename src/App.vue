@@ -5,6 +5,7 @@
         v-if="!socketStore.connected"
         :color="!socketStore.connected ? 'red-darken-3' : 'green-darken-3'"
         class="py-0 px-0 position-fixed top-0 w-100 rounded-0"
+        style="z-index: 1000"
       >
         <v-progress-linear
           :color="!socketStore.connected ? 'red-darken-4' : 'green-darken-4'"
