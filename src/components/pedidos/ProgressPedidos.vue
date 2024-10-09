@@ -138,10 +138,14 @@ export default {
       handler() {
         this.getAllPedidos();
       }
+    },
+    'pedidosStore.pedido' () {
+      this.getAllPedidos();
     }
   },
   mounted() {
-    this.pedidosStore.getAllPedidos();
+    // this.pedidosStore.getAllPedidos();
+    this.getAllPedidos();
   },
   computed: {
     totalPedidos() {

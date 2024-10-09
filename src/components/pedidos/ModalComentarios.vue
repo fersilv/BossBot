@@ -37,7 +37,7 @@
               </v-btn>
               <v-btn color="teal" size="x-small" class="mx-1" prepend-icon="mdi-check" @click="atualizarComentario(item._id,'Approved',true)" :disabled="item.statusComentario == 'Approved' || item.statusComentario == 'Rejected'" rounded> Aprovar
               </v-btn>
-              <v-btn v-if="item.status == 'Error'" color="warning" size="x-small" class="mx-1" prepend-icon="mdi-restart" @click="atualizarComentario(item._id,'Restart',false)" :disabled="item.statusComentario == 'Approved' || item.statusComentario !== 'Pending' && item.status == 'Error'" rounded> Reiniciar
+              <v-btn v-if="item.status == 'Error'" color="warning" size="x-small" class="mx-1" prepend-icon="mdi-restart" @click="atualizarComentario(item._id,'Restart',false)" :disabled="(item.statusComentario == 'Approved' || item.statusComentario !== 'Pending') && item.status !== 'Error'" rounded> Reiniciar
               </v-btn>
             </template>
           </v-data-table>

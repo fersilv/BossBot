@@ -175,7 +175,8 @@ export default {
     };
   },
   async mounted() {
-    await this.pedidosStore.getAllPedidos();
+    // await this.pedidosStore.getAllPedidos();
+    this.atualizarPedidos();
   },
   methods: {
     async atualizarPedidos() {
@@ -245,7 +246,11 @@ export default {
       handler() {
         this.atualizarPedidos();
       }
+    },
+    'pedidosStore.pedido' () {
+        this.atualizarPedidos();
     }
+
   },
   computed: {
     totalPedidos() {

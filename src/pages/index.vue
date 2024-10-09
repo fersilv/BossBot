@@ -4,6 +4,8 @@
 </template>
 
 <script>
+import { useAppStore } from '@/stores/app';
+
 
 
 export default {
@@ -15,12 +17,22 @@ export default {
 
   data() {
     return {
+      appStore: useAppStore(),
+      loadingDialog: true,
     };
   },
 
   methods: {
-    //   Função para atualizar o status do pedido
+    async getAllContent() {
+      this.loadingDialog = true;
+      await this.appStore.getAllContents();
+      this.loadingDialog = false;
+    },
 
+  },
+
+  async mounted() {
+    await this.getAllContent();
   },
 };
 </script>
