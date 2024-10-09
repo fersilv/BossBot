@@ -90,6 +90,7 @@ export const useSocketStore = defineStore("socket", {
     },
 
     acoes(data: any) {
+      console.log("socket:", data);
       switch (data.store) {
         case "conta":
           const contasStore = useContasStore();

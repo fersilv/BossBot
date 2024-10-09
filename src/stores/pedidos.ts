@@ -54,6 +54,7 @@ export const usePedidosStore = defineStore("pedidos", {
           break;
 
         case "update":
+          console.log("update pedido", data);
           await this.getAllPedidos();
           this.pedido++;
           break;

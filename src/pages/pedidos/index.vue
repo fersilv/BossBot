@@ -1,5 +1,5 @@
 <template>
-      <progress-pedidos :ref="ProgressPedidos" />
+  <progress-pedidos :ref="ProgressPedidos" />
 
   <v-container class="pa-10 pt-0" fluid>
     <v-row>
@@ -42,7 +42,9 @@
 
           <!-- Renderiza ícone da categoria do serviço -->
           <template v-slot:item.service.category="{ item }">
-            <v-icon>mdi-{{ item.service.category.toLowerCase() }}</v-icon>
+            <a :href="item.link" target="_blank" rel="noopener noreferrer">
+              <v-icon>mdi-{{ item.service.category.toLowerCase() }}</v-icon>
+            </a>
           </template>
 
           <template v-slot:item.alertError="{ item }">
@@ -78,18 +80,14 @@
             >
             <v-btn
               v-else
-              :color="alertComentarios(item.comments) ? 'warning' : 'blue'"
+              :color="alertComentarios(item.comments) == 'Nescessita Revisão' ? 'warning' : (alertComentarios(item.comments) == 'Ver Comentarios' ? 'blue' : 'purple')"
               size="x-small"
               append-icon="mdi-eye"
               title="Ver comentários"
               @click="$refs.ModalComentarios.openModal(item)"
               rounded
             >
-              {{
-                alertComentarios(item.comments)
-                  ? "Analizar comentários"
-                  : "Ver comentários"
-              }}
+              {{ alertComentarios(item.comments) }}
             </v-btn>
           </template>
         </v-data-table>
@@ -229,32 +227,41 @@ export default {
     alertComentarios(comentarios) {
       if (
         comentarios.some(
+          (comentario) => comentario.statusComentario == "Pending" )
+      ) {
+        return "Em Analise";
+      }
+      
+      if (
+        comentarios.some(
           (comentario) =>
             comentario.statusComentario == "Error" ||
             comentario.statusComentario == "InRevision"
         )
       ) {
-        return true;
+        return "Nescessita Revisão";
       } else {
-        return false;
+        return "Ver Comentarios";
       }
     },
   },
   watch: {
-    'pedidosStore.pedidos': {
+    "pedidosStore.pedidos": {
       deep: true,
       handler() {
         this.atualizarPedidos();
-      }
+      },
     },
-    'pedidosStore.pedido' () {
-        this.atualizarPedidos();
-    }
-
+    "pedidosStore.pedido"() {
+      this.atualizarPedidos();
+    },
   },
   computed: {
     totalPedidos() {
-      const total = Object.values(this.statusPedidos).reduce((a, b) => a + b, 0);
+      const total = Object.values(this.statusPedidos).reduce(
+        (a, b) => a + b,
+        0
+      );
       return total > 0 ? total : 1; // Ajuste para evitar valor 0 como max
     },
   },

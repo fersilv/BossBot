@@ -131,7 +131,7 @@ export default {
         case "partial":
         case "InRevision":
         case "inrevision":
-          return "Em Revisão";
+          return "Revisão";
         case "Pending":
         case "pending":
           return "Pendente";
