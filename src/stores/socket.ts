@@ -50,6 +50,7 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("googleIa", (data: any) => {
+        const appStore = useAppStore();
         appStore.googleIa = data;
       });
 
