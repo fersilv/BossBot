@@ -49,12 +49,12 @@ export const usePedidosStore = defineStore("pedidos", {
     async acoes(data: any) {
       switch (data.type) {
         case "create":
-          this.getAllPedidos();
+          await this.getAllPedidos();
           this.pedido++;
           break;
 
         case "update":
-          this.getAllPedidos();
+          await this.getAllPedidos();
           this.pedido++;
           break;
 
