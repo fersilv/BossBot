@@ -87,6 +87,22 @@
           <v-card class="text-center" elevation="0">
             <v-card-text>
               <v-progress-circular
+                :model-value="partialPercent"
+                :rotate="180"
+                :size="80"
+                :width="15"
+                color="orange"
+              >
+                {{ partial }}
+              </v-progress-circular>
+              <br /><span> PARCIAL </span>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="">
+          <v-card class="text-center" elevation="0">
+            <v-card-text>
+              <v-progress-circular
                 :model-value="canceladoPercent"
                 :rotate="180"
                 :size="80"
@@ -115,6 +131,7 @@ export default {
       pedidosStore: usePedidosStore(),
       pending: 0,
       processing: 0,
+      partial: 0,
       inprogress: 0,
       error: 0,
       completed: 0,
@@ -160,7 +177,7 @@ export default {
     },
     efficiency() {
       const totalFinalizadas =
-        this.completed + this.canceled + this.error;
+        this.completed + this.canceled + this.error + this.partial;
       const totalTarefas =
         this.pending +
         this.processing +
@@ -173,14 +190,21 @@ export default {
     },
     falhaPercent() {
       const totalFinalizadas =
-        this.completed + this.canceled + this.error;
+        this.completed + this.canceled + this.error + this.partial;
       return totalFinalizadas > 0
         ? Math.round((this.error / totalFinalizadas) * 100)
         : 0;
     },
+    partialPercent() {
+      const totalFinalizadas =
+        this.completed + this.canceled + this.error + this.partial;
+      return totalFinalizadas > 0
+        ? Math.round((this.partial / totalFinalizadas) * 100)
+        : 0;
+    },
     canceladoPercent() {
       const totalFinalizadas =
-        this.completed + this.canceled + this.error;
+        this.completed + this.canceled + this.error + this.partial;
       return totalFinalizadas > 0
         ? Math.round((this.canceled / totalFinalizadas) * 100)
         : 0;

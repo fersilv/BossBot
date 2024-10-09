@@ -42,6 +42,10 @@ export const useSocketStore = defineStore("socket", {
 
       this.socket.on("response", (data: any) => {
         this.response = data;
+
+        if(data.action == "refrash"){
+          window.location.reload();
+        }
       });
 
       this.socket.on("action", (data: any) => {

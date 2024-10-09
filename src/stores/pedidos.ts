@@ -20,6 +20,21 @@ export const usePedidosStore = defineStore("pedidos", {
       }
     },
 
+    async priorizarPedidoOuCancelar(id:any,acao:any)
+    {
+      try {
+        const response = (
+          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id)
+        ).data;
+
+        this.getAllPedidos();
+
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async atualizarComentario(id: any, status: any, comment: boolean) {
       const data = { id: id, status: status, comentario: comment };
       console.log(data);

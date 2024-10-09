@@ -80,7 +80,13 @@
             >
             <v-btn
               v-else
-              :color="alertComentarios(item.comments) == 'Nescessita Revisão' ? 'warning' : (alertComentarios(item.comments) == 'Ver Comentarios' ? 'blue' : 'purple')"
+              :color="
+                alertComentarios(item.comments) == 'Nescessita Revisão'
+                  ? 'warning'
+                  : alertComentarios(item.comments) == 'Ver Comentarios'
+                  ? 'blue'
+                  : 'purple'
+              "
               size="x-small"
               append-icon="mdi-eye"
               title="Ver comentários"
@@ -89,6 +95,31 @@
             >
               {{ alertComentarios(item.comments) }}
             </v-btn>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+
+                <v-btn
+                  color="primary"
+                  size="x-small"
+                  class="mx-1"
+                  :prepend-icon="item.prioridade != true ? 'mdi-priority-high' : 'mdi-rocket-launch'"
+                  @click="priorizarPedidoOuCancelar(item._id, 'priorizar')"
+                  rounded
+                  :disabled="(item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error') || item.prioridade == true"
+                >
+                 {{ item.prioridade != true ? 'Priorizar' : 'Priorizado' }}
+                </v-btn>
+                <v-btn
+                  color="error"
+                  size="x-small"
+                  class="mx-1"
+                  prepend-icon="mdi-close-octagon-outline"
+                  @click="priorizarPedidoOuCancelar(item._id, 'cancelar')"
+                  rounded
+                  :disabled="item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error'"
+                >Cancelar</v-btn>
+
           </template>
         </v-data-table>
       </v-col>
@@ -114,6 +145,8 @@ export default {
   },
   data() {
     return {
+      loadingCancel: false,
+      loadingPrioritize: false,
       pedidos: [],
       pedido: {},
       loadingPedidos: false,
@@ -179,7 +212,8 @@ export default {
   },
   methods: {
     async atualizarPedidos() {
-      this.pedidos = this.pedidosStore.pedidos;
+      const pedidos = this.pedidosStore.pedidos;
+      this.pedidos = pedidos;
       this.loading = false;
     },
     badgeStatus(status) {
@@ -228,11 +262,12 @@ export default {
     alertComentarios(comentarios) {
       if (
         comentarios.some(
-          (comentario) => comentario.statusComentario == "Pending" )
+          (comentario) => comentario.statusComentario == "Pending"
+        )
       ) {
         return "Em Analise";
       }
-      
+
       if (
         comentarios.some(
           (comentario) =>
@@ -244,6 +279,16 @@ export default {
       } else {
         return "Ver Comentarios";
       }
+    },
+
+    async priorizarPedidoOuCancelar(id, acao)
+    {
+      const response = await this.pedidosStore.priorizarPedidoOuCancelar(id, acao)
+      if (response.error)
+      {
+        console.log(response.error)
+      }
+      console.log(response)
     },
   },
   watch: {
