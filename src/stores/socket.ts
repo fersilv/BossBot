@@ -52,17 +52,12 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("googleIa", (data: any) => {
-        const appStore = useAppStore();
-        console.log("googleIa: ", data);
         appStore.googleIa = data;
-        appStore.getAllContents();
       });
 
       this.socket.on("tarefas", (data: any) => {
         try {
           this.tarefas = data;
-          const appStore = useAppStore();
-          appStore.getAllContents();
         } catch (err) {
           this.tarefas = {
             pending: 0,
