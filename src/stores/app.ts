@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { useContasStore } from './contas'
 import { useServicosStore } from './servicos'
 import { usePedidosStore } from './pedidos'
+import { useIndexStore } from '.'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -13,9 +14,12 @@ export const useAppStore = defineStore('app', {
   }),
   actions: {
     async getAllContents() {
+      const indexStore = useIndexStore()
       const contasStore = useContasStore()
       const servicosStore = useServicosStore()
       const pedidosStore = usePedidosStore()
+
+      await indexStore.getTarefas()
       await contasStore.getAllContas()
       await servicosStore.getAllServicos()
       await pedidosStore.getAllPedidos()

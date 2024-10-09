@@ -41,7 +41,6 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("response", (data: any) => {
-        console.log("Response from server:", data);
         this.response = data;
       });
 

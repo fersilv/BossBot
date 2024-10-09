@@ -96,12 +96,14 @@
   </template>
   
   <script>
-  import { useSocketStore } from '@/stores/socket';
+  import { useIndexStore } from '@/stores';
+import { useSocketStore } from '@/stores/socket';
   
   export default {
     setup() {
       return {
         socket: useSocketStore(),
+        indexStore: useIndexStore(),
       };
     },
     data() {
@@ -145,19 +147,15 @@
           : 0;
       },
     },
+    async mounted() {
+        await this.indexStore.getTarefas();
+    },
     watch: {
-      socket: {
+      'socket.tarefas': {
+        deep: true, 
         handler() {
-          if (this.socket.connected) {
-            this.socket.socket.on("pedidos", (data) => {
-              this.atualizarPedidos();
-            });
-            this.socket.socket.on("tarefas", (data) => {
-              this.tarefas = data;
-            });
-          }
+          this.tarefas = this.socket.tarefas;
         },
-        immediate: true,
       },
     },
   };

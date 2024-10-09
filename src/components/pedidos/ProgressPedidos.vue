@@ -7,13 +7,13 @@
           <v-card class="text-center" elevation="0">
             <v-card-text>
               <v-progress-circular
-                :value="pedidos.pending"
+                :value="pending"
                 :max="totalPedidos"
                 color="primary"
                 size="80"
                 class="mb-5"
               >
-                {{ pedidos.pending }}
+                {{ pending }}
               </v-progress-circular>
               <br /><span> NA FILA </span>
             </v-card-text>
@@ -23,13 +23,13 @@
           <v-card class="text-center" elevation="0">
             <v-card-text>
               <v-progress-circular
-                :value="pedidos.processing"
+                :value="processing"
                 :max="totalPedidos"
                 color="info"
                 size="80"
                 class="mb-5"
               >
-                {{ pedidos.processing }}
+                {{ processing }}
               </v-progress-circular>
               <br /><span> PROCESSANDO </span>
             </v-card-text>
@@ -39,13 +39,13 @@
           <v-card class="text-center" elevation="0">
             <v-card-text>
               <v-progress-circular
-                :value="pedidos.inprogress"
+                :value="inprogress"
                 :max="totalPedidos"
                 color="warning"
                 size="80"
                 class="mb-5"
               >
-                {{ pedidos.inprogress }}
+                {{ inprogress }}
               </v-progress-circular>
               <br /><span> EM PROGRESSO </span>
             </v-card-text>
@@ -61,7 +61,7 @@
                 :width="15"
                 color="green"
               >
-                {{ pedidos.completed }}
+                {{ completed }}
               </v-progress-circular>
               <br /><span> ENTREGUE </span>
             </v-card-text>
@@ -77,7 +77,7 @@
                 :width="15"
                 color="red"
               >
-                {{ pedidos.error }}
+                {{ error }}
               </v-progress-circular>
               <br /><span> ERRO </span>
             </v-card-text>
@@ -93,7 +93,7 @@
                 :width="15"
                 color="gray"
               >
-                {{ pedidos.canceled }}
+                {{ canceled }}
               </v-progress-circular>
               <br /><span> CANCELADO </span>
             </v-card-text>
@@ -106,86 +106,79 @@
 
 <script>
 import { usePedidosStore } from "@/stores/pedidos";
-import { reactive, watch } from "vue";
-import _ from "lodash"; // Importa lodash para usar debounce
 
 export default {
-  setup() {
-    const pedidosStore = usePedidosStore();
-
-    // Tornar o objeto 'pedidos' reativo
-    const pedidos = reactive({
+  name: "ProgressPedidos",
+  data() {
+    return {
+      loadingPedidos: true,
+      pedidosStore: usePedidosStore(),
       pending: 0,
       processing: 0,
       inprogress: 0,
       error: 0,
       completed: 0,
       canceled: 0,
-    });
-
-    // Função debounce para limitar a quantidade de chamadas de getPedidos
-    const debounceGetPedidos = _.debounce(async () => {
-      await pedidosStore.getAllPedidos();
-      const pedidosData = pedidosStore.pedidos;
-
-      pedidos.pending = pedidosData.filter((pedido) => pedido.status === "Pending").length;
-      pedidos.processing = pedidosData.filter((pedido) => pedido.status === "Processing").length;
-      pedidos.inprogress = pedidosData.filter((pedido) => pedido.status === "Inprogress").length;
-      pedidos.error = pedidosData.filter((pedido) => pedido.status === "Error").length;
-      pedidos.completed = pedidosData.filter((pedido) => pedido.status === "Completed").length;
-      pedidos.canceled = pedidosData.filter((pedido) => pedido.status === "Canceled").length;
-    }, 500); // Aguarda 500ms antes de executar o getPedidos
-
-    // Watch para o estado do store e usa debounce
-    watch(
-      () => pedidosStore.pedido,
-      () => {
-        debounceGetPedidos(); // Chama a função debounce para evitar chamadas repetitivas
-      },
-      { deep: true }
-    );
-
-    return {
-      pedidos,
-      pedidosStore,
     };
+  },  
+  methods: {
+    async getAllPedidos() {
+      const pedidosData = this.pedidosStore.pedidos;
+      this.pending = pedidosData.filter((pedido) => pedido.status === "Pending").length;
+      this.processing = pedidosData.filter((pedido) => pedido.status === "Processing").length;
+      this.inprogress = pedidosData.filter((pedido) => pedido.status === "Inprogress").length;
+      this.error = pedidosData.filter((pedido) => pedido.status === "Error").length;
+      this.completed = pedidosData.filter((pedido) => pedido.status === "Completed").length;
+      this.canceled = pedidosData.filter((pedido) => pedido.status === "Canceled").length;
+    }
+  },
+  watch: {
+    'pedidosStore.pedidos': {
+      deep: true,
+      handler() {
+        this.getAllPedidos();
+      }
+    }
+  },
+  mounted() {
+    this.pedidosStore.getAllPedidos();
   },
   computed: {
     totalPedidos() {
       return (
-        this.pedidos.pending +
-        this.pedidos.processing +
-        this.pedidos.inprogress +
-        this.pedidos.error +
-        this.pedidos.completed +
-        this.pedidos.canceled
+        this.pending +
+        this.processing +
+        this.inprogress +
+        this.error +
+        this.completed +
+        this.canceled
       );
     },
     efficiency() {
       const totalFinalizadas =
-        this.pedidos.completed + this.pedidos.canceled + this.pedidos.error;
+        this.completed + this.canceled + this.error;
       const totalTarefas =
-        this.pedidos.pending +
-        this.pedidos.processing +
-        this.pedidos.inprogress +
+        this.pending +
+        this.processing +
+        this.inprogress +
         totalFinalizadas;
 
       return totalFinalizadas > 0
-        ? Math.round((this.pedidos.completed / totalFinalizadas) * 100)
+        ? Math.round((this.completed / totalFinalizadas) * 100)
         : 0;
     },
     falhaPercent() {
       const totalFinalizadas =
-        this.pedidos.completed + this.pedidos.canceled + this.pedidos.error;
+        this.completed + this.canceled + this.error;
       return totalFinalizadas > 0
-        ? Math.round((this.pedidos.error / totalFinalizadas) * 100)
+        ? Math.round((this.error / totalFinalizadas) * 100)
         : 0;
     },
     canceladoPercent() {
       const totalFinalizadas =
-        this.pedidos.completed + this.pedidos.canceled + this.pedidos.error;
+        this.completed + this.canceled + this.error;
       return totalFinalizadas > 0
-        ? Math.round((this.pedidos.canceled / totalFinalizadas) * 100)
+        ? Math.round((this.canceled / totalFinalizadas) * 100)
         : 0;
     },
   },

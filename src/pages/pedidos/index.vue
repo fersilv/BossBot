@@ -1,9 +1,8 @@
 <template>
-  <v-container class="pa-10" fluid>
+      <progress-pedidos :ref="ProgressPedidos" />
 
-    <progress-pedidos :ref="ProgressPedidos" />
-
-    <v-row class="pa-10">
+  <v-container class="pa-10 pt-0" fluid>
+    <v-row>
       <v-col>
         <h3>PEDIDOS</h3>
       </v-col>
@@ -176,11 +175,10 @@ export default {
     };
   },
   async mounted() {
-    await this.atualizarPedidos();
+    await this.pedidosStore.getAllPedidos();
   },
   methods: {
     async atualizarPedidos() {
-      await this.pedidosStore.getAllPedidos();
       this.pedidos = this.pedidosStore.pedidos;
       this.loading = false;
     },
@@ -242,7 +240,7 @@ export default {
     },
   },
   watch: {
-    'pedidosStore.pedido': {
+    'pedidosStore.pedidos': {
       deep: true,
       handler() {
         this.atualizarPedidos();
