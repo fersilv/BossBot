@@ -45,9 +45,7 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("action", (data: any) => {
-        const appStore = useAppStore();
-        appStore.getAllContents();
-        // this.acoes(data);
+        this.acoes(data);
         this.action = data;
       });
 
@@ -110,4 +108,4 @@ export const useSocketStore = defineStore("socket", {
       }
     },
   },
-});
+}); 
