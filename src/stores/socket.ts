@@ -45,7 +45,9 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("action", (data: any) => {
-        this.acoes(data);
+        const appStore = useAppStore();
+        appStore.getAllContents();
+        // this.acoes(data);
         this.action = data;
       });
 
@@ -53,11 +55,14 @@ export const useSocketStore = defineStore("socket", {
         const appStore = useAppStore();
         console.log("googleIa: ", data);
         appStore.googleIa = data;
+        appStore.getAllContents();
       });
 
       this.socket.on("tarefas", (data: any) => {
         try {
           this.tarefas = data;
+          const appStore = useAppStore();
+          appStore.getAllContents();
         } catch (err) {
           this.tarefas = {
             pending: 0,
