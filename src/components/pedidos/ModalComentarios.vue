@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" persistent max-width="850px">
+  <v-dialog v-model="dialog" persistent max-width="1000px">
     <v-card>
       <v-card-title>
         <span class="text-h5">Comentarios</span>
@@ -32,13 +32,23 @@
                 {{ nameStatus(item.statusComentario) }}
               </v-chip>
             </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip :color="badgeStatus(item.status)" small>
+                {{ nameStatus(item.status) }}
+              </v-chip>
+            </template>
             <template v-slot:item.actions="{ item }">
+              <div  v-if="item.statusComentario !== 'Rejected'">
               <v-btn color="red" size="x-small" class="mx-1" prepend-icon="mdi-stop" @click="atualizarComentario(item._id,'Rejected',true)" :disabled="(item.statusComentario == 'Approved' || item.statusComentario == 'Rejected') && (item.status !== 'Pending' || item.status !== 'Error')" rounded> Rejeitar
               </v-btn>
               <v-btn color="teal" size="x-small" class="mx-1" prepend-icon="mdi-check" @click="atualizarComentario(item._id,'Approved',true)" :disabled="item.statusComentario == 'Approved' || item.statusComentario == 'Rejected'" rounded> Aprovar
               </v-btn>
               <v-btn v-if="item.status == 'Error'" color="warning" size="x-small" class="mx-1" prepend-icon="mdi-restart" @click="atualizarComentario(item._id,'Restart',false)" :disabled="(item.statusComentario == 'Approved' || item.statusComentario !== 'Pending') && item.status !== 'Error'" rounded> Reiniciar
               </v-btn>
+            </div>
+              <div v-else>
+               {{ gerarMotivo(item) }}
+              </div>
             </template>
           </v-data-table>
         </v-container>
@@ -68,6 +78,7 @@ export default {
         { title: "Comentários", align: "start", value: "comment" },
         { title: "Data", value: "date" },
         { title: "Status", align: "center", value: "statusComentario" }, // Corrigido para statusComentarios
+        { title: "Progresso", align: "center", value: "status" }, // Corrigido para statusComentarios
         { title: "Ações", align: "center", value: "actions" },
       ],
       pedidosStore: usePedidosStore()
@@ -94,6 +105,16 @@ export default {
       this.comentarios = pedido.comments; // Certifique-se de que 'pedido.comments' está correto
       this.pedido = pedido;
     },
+    gerarMotivo(item)
+    {
+
+      if(item.responseIa)
+      {
+        return item.responseIa.motivo
+    } else {
+        return 'Motivo não informado'
+    }
+  },
 
     badgeStatus(status) {
       switch (status) {
@@ -145,7 +166,7 @@ export default {
           return "Aprovado";
         case "Canceled":
         case "canceled":
-          return "grey";
+          return "Cancelado";
         case "Error":
         case "error":
         case "Rejected":

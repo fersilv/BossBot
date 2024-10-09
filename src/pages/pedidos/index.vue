@@ -172,6 +172,7 @@ export default {
       ],
     };
   },
+
   async mounted() {
     // await this.pedidosStore.getAllPedidos();
     this.atualizarPedidos();
