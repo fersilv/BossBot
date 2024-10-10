@@ -1,5 +1,6 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { useAppStore } from "./app";
 
 export const useServicosStore = defineStore("servicos", {
   state: () => ({
@@ -7,25 +8,23 @@ export const useServicosStore = defineStore("servicos", {
     servico: {},
     redesSociais: [] as any,
     tipoServico: [] as any,
+    token: useAppStore().token,
   }),
   actions: {
     async createServico(data: any) {
       try {
         const response = (
-          await axios.post(import.meta.env.VITE_URL_BACKEND + "servico", data)
+          await axios.post(import.meta.env.VITE_URL_BACKEND + "servico", data, {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
         ).data;
         if (response.error) {
           return response;
         }
 
         console.log(response);
-
-        console.log(
-          import.meta.env.VITE_URL_BACKEND + "servico",
-          "Response: ",
-          response
-        );
-
         return response;
       } catch (error) {
         console.log(error);
@@ -34,7 +33,11 @@ export const useServicosStore = defineStore("servicos", {
     async getAllServicos() {
       try {
         const response = (
-          await axios.get(import.meta.env.VITE_URL_BACKEND + "servico/findAll")
+          await axios.get(import.meta.env.VITE_URL_BACKEND + "servico/findAll", {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
         ).data;
         this.servicos = await response;
         this.servico = await response[0];
@@ -62,9 +65,12 @@ export const useServicosStore = defineStore("servicos", {
         try {
           const rs = (
             await axios.get(
-              import.meta.env.VITE_URL_BACKEND + "servico/categories"
-            )
-          ).data;
+              import.meta.env.VITE_URL_BACKEND + "servico/categories", {
+                headers: {
+                  'Authorization': `Bearer ${this.token}`
+                },
+              })
+            ).data;
           this.redesSociais = rs;
         } catch (err) {
           console.log(err);
@@ -73,9 +79,12 @@ export const useServicosStore = defineStore("servicos", {
         try {
           const ts = (
             await axios.get(
-              import.meta.env.VITE_URL_BACKEND + "servico/typeService"
-            )
-          ).data;
+              import.meta.env.VITE_URL_BACKEND + "servico/typeService", {
+                headers: {
+                  'Authorization': `Bearer ${this.token}`
+                },
+              })
+            ).data;
           this.tipoServico = ts;
         } catch (err) {
           console.log(err);
@@ -92,9 +101,12 @@ export const useServicosStore = defineStore("servicos", {
         const response = (
           await axios.patch(
             import.meta.env.VITE_URL_BACKEND + "servico/" + data._id,
-            data
-          )
-        ).data;
+            data, {
+              headers: {
+                'Authorization': `Bearer ${this.token}`
+              },
+            })
+          ).data;
         if (response.error) {
           return response;
         }
@@ -109,9 +121,12 @@ export const useServicosStore = defineStore("servicos", {
         const response = (
           await axios.patch(
             import.meta.env.VITE_URL_BACKEND + "servico/" + id + "/usuarios",
-            usuarios
-          )
-        ).data;
+            usuarios, {
+              headers: {
+                'Authorization': `Bearer ${this.token}`
+              },
+            })
+          ).data;
         if (response.error) {
           return response;
         }
@@ -132,9 +147,12 @@ export const useServicosStore = defineStore("servicos", {
               "servico/" +
               servicoId +
               "/usuario/" +
-              contaId
-          )
-        ).data;
+              contaId, {
+                headers: {
+                  'Authorization': `Bearer ${this.token}`
+                },
+              })
+            ).data;
         if (response.error) {
           return response;
         }

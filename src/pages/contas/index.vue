@@ -1,8 +1,9 @@
 <template>
   <v-container>
-    <v-card class="pa-3">
+    <v-card class="pa-3 mt-6">
       <v-data-title>
         <v-row>
+          <v-col cols="auto">CONTAS DE USUARIOS</v-col>
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <v-btn
@@ -21,7 +22,7 @@
     </v-card>
   </v-container>
   <v-container>
-    <v-card>
+    <v-card rounded="lg" class="pa-3">
       <v-data-title></v-data-title>
       <v-data-text>
         <v-data-table
@@ -143,15 +144,11 @@ export default {
   },
 
   watch: {
-    async "contasStore.conta"() {
-      console.log("ouvindo");
-      this.conta = await this.contasStore.conta;
-      //   acha a conta e atualiza ela
-      this.contas.forEach((conta) => {
-        if (conta._id === this.conta._id) {
-          conta = this.conta;
-        }
-      });
+    async "contasStore.contas"() {
+      
+      this.loadingConta = true;
+
+      this.contas = await this.contasStore.contas;
 
       this.loadingConta = false;
 

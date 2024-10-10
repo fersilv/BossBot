@@ -1,6 +1,6 @@
 <template>
   <v-container class="pa-10" fluid>
-    <v-card class="text-center">
+    <v-card class="text-center pa-6" rounded="lg">
       <v-card-subtitle>PEDIDOS</v-card-subtitle>
       <v-row>
         <v-col cols="">

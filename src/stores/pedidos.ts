@@ -1,17 +1,23 @@
 // Utilities
 import axios from "axios";
 import { defineStore } from "pinia";
+import { useAppStore } from "./app";
 
 export const usePedidosStore = defineStore("pedidos", {
   state: () => ({
     pedidos: [] as any,
     pedido: 0,
+    token: useAppStore().token,
   }),
   actions: {
     async getAllPedidos() {
       try {
         const response = (
-          await axios.get(import.meta.env.VITE_URL_BACKEND + "pedido")
+          await axios.get(import.meta.env.VITE_URL_BACKEND + "pedido", {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
         ).data;
 
         this.pedidos = await response;
@@ -24,7 +30,11 @@ export const usePedidosStore = defineStore("pedidos", {
     {
       try {
         const response = (
-          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id)
+          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id, {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
         ).data;
 
         this.getAllPedidos();
@@ -42,9 +52,12 @@ export const usePedidosStore = defineStore("pedidos", {
         const response = (
           await axios.patch(
             import.meta.env.VITE_URL_BACKEND + "pedido/comentario",
-            data
-          )
-        ).data;
+            data, {
+              headers: {
+                'Authorization': `Bearer ${this.token}`
+              },
+            })
+          ).data;
         if (response.error) {
           return response;
         }

@@ -3,8 +3,69 @@
 
   <v-container class="pa-10 pt-0" fluid>
     <v-row>
-      <v-col>
-        <h3>PEDIDOS</h3>
+      <v-col cols="12">
+        <v-data-title>
+          <v-row>
+            <v-col cols="auto">PEDIDOS</v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-text-field
+                v-model="search"
+                append-inner-icon="mdi-magnify"
+                label="Pesquisar"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-data-title>
+      </v-col>
+
+      <!-- Filtro de data inicial -->
+      <v-col cols="auto" v-show="false">
+        <v-menu
+          v-model="datePickerStart"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="startDate"
+              label="Data Inicial"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            v-model="startDate"
+            @input="datePickerStart = false"
+          ></v-date-picker>
+        </v-menu>
+      </v-col>
+
+      <!-- Filtro de data final -->
+      <v-col cols="auto" v-show="false">
+        <v-menu
+          v-model="datePickerEnd"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="endDate"
+              label="Data Final"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+            ></v-text-field>
+          </template>
+          <v-date-picker v-model="endDate" @input="datePickerEnd = false"></v-date-picker>
+        </v-menu>
       </v-col>
     </v-row>
 
@@ -12,12 +73,14 @@
       <v-col>
         <v-data-table
           :headers="headers"
-          :items="pedidos"
+          :items="pedidosFiltrados"
           :loading="loadingPedidos"
           :loading-text="'Carregando...'"
           :items-per-page-text="'Exibir'"
           :items-per-page-options="[5, 10, 50, 100, -1]"
           :no-data-text="'Nenhum Serviço encontrado'"
+          class="pa-6"
+          rounded="lg"
         >
           <!-- Status com chip -->
           <template v-slot:item.status="{ item }">
@@ -98,28 +161,26 @@
           </template>
 
           <template v-slot:item.actions="{ item }">
-
-                <v-btn
-                  color="primary"
-                  size="x-small"
-                  class="mx-1"
-                  :prepend-icon="item.prioridade != true ? 'mdi-priority-high' : 'mdi-rocket-launch'"
-                  @click="priorizarPedidoOuCancelar(item._id, 'priorizar')"
-                  rounded
-                  :disabled="(item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error') || item.prioridade == true"
-                >
-                 {{ item.prioridade != true ? 'Priorizar' : 'Priorizado' }}
-                </v-btn>
-                <v-btn
-                  color="error"
-                  size="x-small"
-                  class="mx-1"
-                  prepend-icon="mdi-close-octagon-outline"
-                  @click="priorizarPedidoOuCancelar(item._id, 'cancelar')"
-                  rounded
-                  :disabled="item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error'"
-                >Cancelar</v-btn>
-
+            <v-btn
+              color="primary"
+              size="x-small"
+              class="mx-1"
+              :prepend-icon="item.prioridade != true ? 'mdi-priority-high' : 'mdi-rocket-launch'"
+              @click="priorizarPedidoOuCancelar(item._id, 'priorizar')"
+              rounded
+              :disabled="(item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error') || item.prioridade == true"
+            >
+              {{ item.prioridade != true ? 'Priorizar' : 'Priorizado' }}
+            </v-btn>
+            <v-btn
+              color="error"
+              size="x-small"
+              class="mx-1"
+              prepend-icon="mdi-close-octagon-outline"
+              @click="priorizarPedidoOuCancelar(item._id, 'cancelar')"
+              rounded
+              :disabled="item.status == 'Completed' || item.status == 'Partial' || item.status == 'Canceled' || item.status == 'Error'"
+            >Cancelar</v-btn>
           </template>
         </v-data-table>
       </v-col>
@@ -145,6 +206,11 @@ export default {
   },
   data() {
     return {
+      search: "", // Para o campo de busca
+      startDate: null, // Data inicial do filtro
+      endDate: null, // Data final do filtro
+      datePickerStart: false,
+      datePickerEnd: false,
       loadingCancel: false,
       loadingPrioritize: false,
       pedidos: [],
@@ -154,7 +220,7 @@ export default {
         pending: 0,
         processing: 0,
         inprogress: 0,
-        partial: 0, // Incluindo parcial
+        partial: 0,
         error: 0,
         completed: 0,
         canceled: 0,
@@ -164,42 +230,13 @@ export default {
       headers: [
         { title: "ID", align: "start", value: "_id", sortable: true },
         { title: "Data", value: "date", sortable: true },
-        {
-          title: "",
-          align: "center",
-          value: "service.category",
-          sortable: true,
-        },
-        {
-          title: "Tipo",
-          align: "center",
-          value: "service.type",
-          sortable: true,
-        },
-        {
-          title: "",
-          align: "center",
-          value: "alertError",
-        },
+        { title: "", align: "center", value: "service.category", sortable: true },
+        { title: "Tipo", align: "center", value: "service.type", sortable: true },
+        { title: "", align: "center", value: "alertError" },
         { title: "Serviço", value: "service.name", sortable: true },
-        {
-          title: "Comprado",
-          align: "center",
-          value: "comprado",
-          sortable: true,
-        },
-        {
-          title: "Entregue",
-          align: "center",
-          value: "entregue",
-          sortable: true,
-        },
-        {
-          title: "Restante",
-          align: "center",
-          value: "restante",
-          sortable: true,
-        },
+        { title: "Comprado", align: "center", value: "comprado", sortable: true },
+        { title: "Entregue", align: "center", value: "entregue", sortable: true },
+        { title: "Restante", align: "center", value: "restante", sortable: true },
         { title: "Status", value: "status", sortable: true },
         { title: "Ações", value: "actions", align: "center" },
       ],
@@ -207,7 +244,6 @@ export default {
   },
 
   async mounted() {
-    // await this.pedidosStore.getAllPedidos();
     this.atualizarPedidos();
   },
   methods: {
@@ -234,10 +270,6 @@ export default {
         default:
           return "grey";
       }
-    },
-    alterarStatus(item, novoStatus) {
-      item.status = novoStatus;
-      this.atualizarStatusPedidos();
     },
     nameStatus(status) {
       switch (status.toLowerCase()) {
@@ -280,15 +312,31 @@ export default {
         return "Ver Comentarios";
       }
     },
-
-    async priorizarPedidoOuCancelar(id, acao)
-    {
-      const response = await this.pedidosStore.priorizarPedidoOuCancelar(id, acao)
-      if (response.error)
-      {
-        console.log(response.error)
+    async priorizarPedidoOuCancelar(id, acao) {
+      const response = await this.pedidosStore.priorizarPedidoOuCancelar(id, acao);
+      if (response.error) {
+        console.log(response.error);
       }
-      console.log(response)
+      console.log(response);
+    },
+  },
+  computed: {
+    pedidosFiltrados() {
+      return this.pedidos.filter((pedido) => {
+        const matchesSearch =
+          pedido._id.toLowerCase().includes(this.search.toLowerCase()) ||
+          pedido.link.toLowerCase().includes(this.search.toLowerCase()) ||
+          pedido.comments.some((comment) =>
+            comment.comment.toLowerCase().includes(this.search.toLowerCase())
+          );
+
+        const pedidoDate = new Date(pedido.date);
+        const matchesDate =
+          (!this.startDate || pedidoDate >= new Date(this.startDate)) &&
+          (!this.endDate || pedidoDate <= new Date(this.endDate));
+
+        return matchesSearch && matchesDate;
+      });
     },
   },
   watch: {
@@ -300,15 +348,6 @@ export default {
     },
     "pedidosStore.pedido"() {
       this.atualizarPedidos();
-    },
-  },
-  computed: {
-    totalPedidos() {
-      const total = Object.values(this.statusPedidos).reduce(
-        (a, b) => a + b,
-        0
-      );
-      return total > 0 ? total : 1; // Ajuste para evitar valor 0 como max
     },
   },
 };

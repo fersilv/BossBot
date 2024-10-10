@@ -1,16 +1,22 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { useAppStore } from "./app";
 
 export const useContasStore = defineStore("contas", {
   state: () => ({
     contas: [] as any,
     conta: {},
+    token: useAppStore().token,
   }),
   actions: {
     async getAllContas() {
       try {
         const response = (
-          await axios.get(import.meta.env.VITE_URL_BACKEND + "conta")
+          await axios.get(import.meta.env.VITE_URL_BACKEND + "usuario", {
+            headers: {
+              'Authorization': `Bearer ${this.token}`,
+            },
+          })
         ).data;
         if (this.contas.length == 0) {
           this.contas = await response;
@@ -30,7 +36,11 @@ export const useContasStore = defineStore("contas", {
     async cadastrarConta(conta: any) {
       try {
         const response = (
-          await axios.post(import.meta.env.VITE_URL_BACKEND + "conta", conta)
+          await axios.post(import.meta.env.VITE_URL_BACKEND + "usuario", conta, {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
         ).data;
         if (response.error) {
           return response;
@@ -50,10 +60,13 @@ export const useContasStore = defineStore("contas", {
       try {
         const response = (
           await axios.post(
-            import.meta.env.VITE_URL_BACKEND + "conta/login-teste",
-            conta
-          )
-        ).data;
+            import.meta.env.VITE_URL_BACKEND + "usuario/login-teste",
+            conta, {
+              headers: {
+                'Authorization': `Bearer ${this.token}`
+              },
+            })
+          ).data;
         return response;
       } catch (error) {
         console.log(error);
