@@ -38,7 +38,10 @@
               </v-chip>
             </template>
             <template v-slot:item.actions="{ item }">
-              <div  v-if="item.statusComentario !== 'Rejected'">
+              <div v-if="item.statusComentario === 'Rejected' || item.statusComentario === 'Canceled'">
+               {{ item.statusComentario === 'Canceled' ? 'Pedido Cancelado' : gerarMotivo(item) }}
+              </div>
+              <div  v-else>
               <v-btn color="red" size="x-small" class="mx-1" prepend-icon="mdi-stop" @click="atualizarComentario(item._id,'Rejected',true)" :disabled="(item.statusComentario == 'Approved' || item.statusComentario == 'Rejected') && (item.status !== 'Pending' || item.status !== 'Error')" rounded> Rejeitar
               </v-btn>
               <v-btn color="teal" size="x-small" class="mx-1" prepend-icon="mdi-check" @click="atualizarComentario(item._id,'Approved',true)" :disabled="item.statusComentario == 'Approved' || item.statusComentario == 'Rejected'" rounded> Aprovar
@@ -46,9 +49,6 @@
               <v-btn v-if="item.status == 'Error'" color="warning" size="x-small" class="mx-1" prepend-icon="mdi-restart" @click="atualizarComentario(item._id,'Restart',false)" :disabled="(item.statusComentario == 'Approved' || item.statusComentario !== 'Pending') && item.status !== 'Error'" rounded> Reiniciar
               </v-btn>
             </div>
-              <div v-else>
-               {{ gerarMotivo(item) }}
-              </div>
             </template>
           </v-data-table>
         </v-container>
@@ -79,7 +79,7 @@ export default {
         { title: "Data", value: "date" },
         { title: "Status", align: "center", value: "statusComentario" }, // Corrigido para statusComentarios
         { title: "Progresso", align: "center", value: "status" }, // Corrigido para statusComentarios
-        { title: "Ações", align: "center", value: "actions" },
+        { title: "", align: "center", value: "actions" },
       ],
       pedidosStore: usePedidosStore()
     };
