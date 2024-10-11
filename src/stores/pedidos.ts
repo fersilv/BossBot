@@ -31,7 +31,7 @@ export const usePedidosStore = defineStore("pedidos", {
     {
       try {
         const response = (
-          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + id + "/" + acao, {
+          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id, {
             headers: {
               'Authorization': `Bearer ${this.token}`
             },
