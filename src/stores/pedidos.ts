@@ -23,6 +23,7 @@ export const usePedidosStore = defineStore("pedidos", {
         this.pedidos = await response;
       } catch (error) {
         console.log(error);
+        throw error;
       }
     },
 
@@ -30,18 +31,16 @@ export const usePedidosStore = defineStore("pedidos", {
     {
       try {
         const response = (
-          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id, {
+          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + id + "/" + acao, {
             headers: {
               'Authorization': `Bearer ${this.token}`
             },
           })
         ).data;
-
-        this.getAllPedidos();
-
+        console.log(response)
         return response;
       } catch (error) {
-        console.log(error);
+        console.log("Erro ao cancelar/Priorizar pedido",error);
       }
     },
 

@@ -4,7 +4,7 @@
       v-model="value"
       :bg-color="color"
       mode="shift"
-      class="position-fixed"
+      class="position-fixed top-0 w-100"
       @change="handleNavigation"
     >
       <v-btn :value="0" to="/" exact>

@@ -39,7 +39,7 @@
                     rounded
                   ></v-text-field>
 
-                  <v-alert v-if="error" type="error" closable>{{ error }}</v-alert> 
+                  <v-alert v-if="error" type="error" style="font-size: 12px;" variant="plain" color="warning" class="py-0" closable>{{ error }}</v-alert> 
 
                   <v-switch
                     v-model="remember"
@@ -141,6 +141,23 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+html,
+body,
+main{
+  height: 100vh!important;
+  min-height: 100vh!important;
+  max-height: 100vh!important;
+  overflow: hidden!important;
+} 
+
+#app{
+  overflow: initial!important;
+  height: 100vh!important;
+  min-height: 100vh!important;
+  max-height: 100vh!important;
+  z-index: 9999!important;
+}
 
 .login-container {
   height: 100vh;

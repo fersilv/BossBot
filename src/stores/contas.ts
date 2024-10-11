@@ -30,6 +30,7 @@ export const useContasStore = defineStore("contas", {
         }
       } catch (error) {
         console.log(error);
+        throw error;
       }
     },
 

@@ -20,6 +20,7 @@ export const useIndexStore = defineStore('index',{
                 })
               } catch (error) {
                 console.log(error);
+                throw error
               }
         }
     }

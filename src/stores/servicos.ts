@@ -93,6 +93,7 @@ export const useServicosStore = defineStore("servicos", {
 
       } catch (error) {
         console.log(error);
+        throw error
       }
     },
 
