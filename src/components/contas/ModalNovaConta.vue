@@ -201,10 +201,12 @@ export default {
     this.redesSociais = await this.servicoStore.redesSociais;
     console.log(this.redesSociais);
   }
-  watch: {
+  watch: 
    'servicoStore.redesSociais': {
-        this.redesSociais = this.servicoStore.redesSociais;
-  },
+    immediate: true,
+    handler() {
+      this.redesSociais = this.servicoStore.redesSociais;
+    },
   }
 };
 </script>
