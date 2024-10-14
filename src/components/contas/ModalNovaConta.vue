@@ -145,7 +145,14 @@ export default {
       this.dialog = false;
       // Simule uma operação assíncrona como uma requisição HTTP
       setTimeout(() => {
-        this.conta = { usuario: "", senha: "", limite: "", category: "", dadoRecuperacao: "", senhaDadoRecuperacao: null };
+        this.conta = {
+          usuario: "",
+          senha: "",
+          limite: "",
+          category: "",
+          dadoRecuperacao: "",
+          senhaDadoRecuperacao: null,
+        };
         this.loadingCancel = false;
       }, 1000); // Simula um atraso de 1 segundo
     },
@@ -175,38 +182,45 @@ export default {
           this.$emit("novaConta");
           this.loadingSubmit = false;
           this.dialog = false;
-          this.conta = { usuario: "", senha: "", limite: "", category: "", dadoRecuperacao: "", senhaDadoRecuperacao: null };
+          this.conta = {
+            usuario: "",
+            senha: "",
+            limite: "",
+            category: "",
+            dadoRecuperacao: "",
+            senhaDadoRecuperacao: null,
+          };
         } else {
           this.loadingSubmit = false;
           this.error = response.message ?? "Ocorreu um erro inesperado";
         }
       } catch (error) {
         this.loadingSubmit = false;
-        this.error = error.response.data.message ?? "Ocorreu um erro inesperado";
+        this.error =
+          error.response.data.message ?? "Ocorreu um erro inesperado";
         console.log(error);
       }
     },
 
-    async modalNovaConta(conta = null)
-    {
-      if(conta)
-    {
-      this.isEditing = true;
-      this.conta = { ...conta };
-    }
-    this.dialog = true;
-    }
+    async modalNovaConta(conta = null) {
+      if (conta) {
+        this.isEditing = true;
+        this.conta = { ...conta };
+      }
+      this.dialog = true;
+    },
   },
   async mounted() {
     this.redesSociais = await this.servicoStore.redesSociais;
     console.log(this.redesSociais);
-  }
-  watch: 
-   'servicoStore.redesSociais': {
-    immediate: true,
-    handler() {
-      this.redesSociais = this.servicoStore.redesSociais;
+  },
+  watch: {
+    "servicoStore.redesSociais": {
+      immediate: true,
+      handler() {
+        this.redesSociais = this.servicoStore.redesSociais;
+      },
     },
-  }
+  },
 };
 </script>
