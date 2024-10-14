@@ -122,7 +122,7 @@ export default {
   data() {
     return {
       dialog: false,
-      redesSociais: useServicosStore().redesSociais,
+      redesSociais: [],
       isEditing: false,
       conta: {
         usuario: "",
@@ -196,6 +196,9 @@ export default {
     }
     this.dialog = true;
     }
+  },
+  async mounted() {
+    this.redesSociais = await this.servicoStore.redesSociais;
   },
 };
 </script>
