@@ -71,7 +71,7 @@ export const useServicosStore = defineStore("servicos", {
                 },
               })
             ).data;
-            console.log(rs)
+      
           this.redesSociais = rs;
         } catch (err) {
           console.log(err);
@@ -86,7 +86,7 @@ export const useServicosStore = defineStore("servicos", {
                 },
               })
             ).data;
-            console.log
+          
           this.tipoServico = ts;
         } catch (err) {
           console.log(err);
