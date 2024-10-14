@@ -200,14 +200,14 @@ export default {
   async mounted() {
     this.redesSociais = await this.servicoStore.redesSociais;
     console.log(this.redesSociais);
-  },
-
+  }
   watch: {
    'servicoStore.redesSociais': {
       deep: true,
       handler() {
         this.redesSociais = this.servicoStore.redesSociais;
       }
+  },
   },
 };
 </script>
