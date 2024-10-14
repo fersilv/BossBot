@@ -208,6 +208,6 @@ export default {
         this.redesSociais = this.servicoStore.redesSociais;
       }
   },
-  },
+  }
 };
 </script>
