@@ -29,7 +29,7 @@ export const useSocketStore = defineStore("socket", {
         return;
       }
 
-      this.socket = io("https://bossbot.serveo.net", {
+      this.socket = io(import.meta.env.VITE_URL_BACKEND_SOCKET, {
         transports: ["websocket"],
       });
 
@@ -60,6 +60,7 @@ export const useSocketStore = defineStore("socket", {
 
       this.socket.on("tarefas", (data: any) => {
         try {
+          console.log(data)
           this.tarefas = data;
         } catch (err) {
           this.tarefas = {

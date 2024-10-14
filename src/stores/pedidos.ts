@@ -19,7 +19,7 @@ export const usePedidosStore = defineStore("pedidos", {
             },
           })
         ).data;
-
+        console.log(response)
         this.pedidos = await response;
       } catch (error) {
         console.log(error);
