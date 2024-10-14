@@ -30,19 +30,19 @@
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="8">
-              <v-select
-                @input="error = ''"
-                v-model="conta.category"
-                label="Rede Social*"
-                :items="redesSociais"
-                item-title="name"
-                item-value="value"
-                :rules="[(value) => !!value || 'Rede Social é obrigatorio']"
-                messages="Rede Social do Serviço"
-                variant="solo"
-                required
-              ></v-select>
-            </v-col>
+            <v-select
+              @input="error = ''"
+              v-model="conta.category"
+              label="Rede Social*"
+              :items="redesSociais"
+              item-title="name"
+              item-value="value"
+              :rules="[(value) => !!value || 'Rede Social é obrigatorio']"
+              messages="Rede Social do Serviço"
+              variant="solo"
+              required
+            ></v-select>
+          </v-col>
           <v-col cols="12" md="4">
             <v-text-field
               type="tel"
@@ -58,7 +58,9 @@
             <v-text-field
               v-model="conta.dadoRecuperacao"
               label="Email ou Telefone*"
-              :rules="[(value) => !!value || 'Dado de Recuperação é obrigatorio']"
+              :rules="[
+                (value) => !!value || 'Dado de Recuperação é obrigatorio',
+              ]"
               messages="Dado de Recuperação da conta"
               variant="solo"
               required
@@ -75,9 +77,7 @@
           </v-col>
         </v-row>
       </v-card-text>
-      <v-card-text
-        v-if="error"
-        class="pa-0 pb-1 w-100 text-center text-error"
+      <v-card-text v-if="error" class="pa-0 pb-1 w-100 text-center text-error"
         ><small>{{ error }}</small></v-card-text
       >
       <v-card-actions class="pt-0 pb-4 px-4">
@@ -203,10 +203,7 @@ export default {
   }
   watch: {
    'servicoStore.redesSociais': {
-      deep: true,
-      handler() {
         this.redesSociais = this.servicoStore.redesSociais;
-      }
   },
   }
 };
