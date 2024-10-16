@@ -193,7 +193,10 @@ export default {
         this.conta.senha &&
         this.conta.limite &&
         this.conta.category &&
-        this.conta.dadoRecuperacao
+        this.conta.dadoRecuperacao &&
+        this.conta.senhaDadoRecuperacao &&
+        this.conta.genero &&
+        this.conta.statusConta
       ) {
         this.conta.usuario = this.conta.usuario.trim();
         this.conta.senha = this.conta.senha.trim();
