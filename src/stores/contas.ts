@@ -57,14 +57,14 @@ export const useContasStore = defineStore("contas", {
               'Authorization': `Bearer ${this.token}`
             },
           })
-        ).data;
-        if (response.error) {
+        );
+        if (response) {
           return response;
         }
         console.log(response);
 
         this.getAllContas()
-        return response.response;
+        return response;
       } catch (error) {
         console.log(error);
         throw error;

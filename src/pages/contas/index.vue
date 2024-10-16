@@ -45,6 +45,7 @@
           </template>
           <template v-slot:item.btn="{ item }">
             <v-btn
+            v-show="false"
               color="red"
               size="x-small"
               @click="deleteConta(item)"
@@ -94,7 +95,7 @@
       </v-data-text>
     </v-card>
   </v-container>
-  <ModalNovaConta ref="modalNovaConta" @novaConta="loadingConta = true" />
+  <ModalNovaConta ref="modalNovaConta" @novaConta="loadingConta = true, getAllContas(true)" />
 </template>
 
 <script>
@@ -133,19 +134,26 @@ export default {
   },
 
   methods: {
-    async getAllContas() {
+    async getAllContas(store = false) {
+      console.log("getAllContas");
+
+      if(store) {
+        await this.contasStore.getAllContas();
+      }
+
       try {
         const contas = await this.contasStore.contas;
-        this.contas = contas.map((conta) => {
+        this.contas = await contas.map((conta) => {
           return {
             ...conta,
             loading: false,
           };
         });
-        console.log(this.contas);
+
       } catch (error) {
         console.log(error);
       }
+      this.loadingConta = false;
     },
     async createConta() {},
     async deleteConta() {},
@@ -201,11 +209,8 @@ export default {
 
   watch: {
     async "contasStore.contas"() {
-      this.loadingConta = true;
 
-      this.getAllContas();
-
-      this.loadingConta = false;
+      await this.getAllContas();
     },
   },
 };
