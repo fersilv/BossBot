@@ -18,16 +18,7 @@ export const useContasStore = defineStore("contas", {
             },
           })
         ).data;
-        if (this.contas.length == 0) {
-          this.contas = await response;
-        } else {
-          // verifica se aquela conta já existe para evitar duplicatas
-          response.forEach((item: any) => {
-            if (!this.contas.find((conta: any) => conta.id == item.id)) {
-              this.contas.push(item);
-            }
-          });
-        }
+        this.contas = await response;
       } catch (error) {
         console.log(error);
         throw error;
@@ -50,6 +41,29 @@ export const useContasStore = defineStore("contas", {
 
         this.conta = await response.response.response;
         this.contas.push(this.conta);
+        return response.response;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+
+    async atualizarConta(conta: any)
+    {
+      try {
+        const response = (
+          await axios.patch(import.meta.env.VITE_URL_BACKEND + "usuario/" + conta._id, conta, {
+            headers: {
+              'Authorization': `Bearer ${this.token}`
+            },
+          })
+        ).data;
+        if (response.error) {
+          return response;
+        }
+        console.log(response);
+
+        this.getAllContas()
         return response.response;
       } catch (error) {
         console.log(error);

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid class="pa-10">
     <v-card class="pa-3 mt-6">
       <v-data-title>
         <v-row>
@@ -21,7 +21,7 @@
       </v-data-title>
     </v-card>
   </v-container>
-  <v-container>
+  <v-container fluid class="pa-10 pt-0">
     <v-card rounded="lg" class="pa-3">
       <v-data-title></v-data-title>
       <v-data-text>
@@ -34,9 +34,13 @@
           :items-per-page-options="[5, 10, 50, 100, -1]"
           :no-data-text="'Nenhuma conta encontrado'"
         >
+          <!-- data brasileira -->
+          <template v-slot:item.dataCriacao="{ item }">
+            <spam>{{ new Date(item.dataCriacao).toLocaleDateString() }}</spam>
+          </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="item.status === 'true' ? 'green' : 'red'">{{
-              item.status === "true" ? "Autenticado" : "Falha"
+              item.status === "true" ? "Ativa" : "Inativa"
             }}</v-chip>
           </template>
           <template v-slot:item.btn="{ item }">
@@ -53,10 +57,10 @@
               v-if="item.status === 'true'"
               :color="'blue'"
               size="x-small"
-              :icon="'mdi-reload'"
+              :icon="'mdi-pencil'"
               class="mx-2"
-              title="Checar Autenticação"
-              @click="checarConta(item)"
+              title="Editar Conta"
+              @click="openModal(item)"
               :loading="item.loading"
             >
             </v-btn>
@@ -82,6 +86,10 @@
               }}
             </spam>
           </template>
+
+          <template v-slot:item.statusConta="{ item }">
+            {{ statusConta(item.statusConta) }}
+          </template>
         </v-data-table>
       </v-data-text>
     </v-card>
@@ -102,9 +110,20 @@ export default {
     return {
       contas: [],
       headers: [
-        { title: "Identificador", value: "_id" },
+        { title: "Identificador", value: "_id", width: "10px" },
+        {
+          title: "Criado",
+          align: "center",
+          value: "dataCriacao",
+          width: "auto",
+        },
         { title: "Usuario", value: "usuario" },
+        { title: "Gênero", value: "genero", width: "auto" },
+        { title: "Limite", value: "limite", width: "auto" },
+        { title: "Uso Geral", value: "quantidadeUsada", width: "auto" },
+        { title: "Uso Diário", value: "usoDiario", width: "auto" },
         { title: "Status", value: "status", width: "auto" },
+        { title: "Conta", value: "statusConta", width: "auto" },
         { title: "Ação", value: "acao", width: "auto" },
         { title: "", value: "btn" },
       ],
@@ -116,7 +135,14 @@ export default {
   methods: {
     async getAllContas() {
       try {
-        this.contas = this.contasStore.contas;
+        const contas = await this.contasStore.contas;
+        this.contas = contas.map((conta) => {
+          return {
+            ...conta,
+            loading: false,
+          };
+        });
+        console.log(this.contas);
       } catch (error) {
         console.log(error);
       }
@@ -124,34 +150,62 @@ export default {
     async createConta() {},
     async deleteConta() {},
     async updateConta() {},
-    async statusConta() {},
-    async checarConta(conta) {
-      console.log("checando conta: ", conta);
-      conta.loading = true;
-      try {
-        await this.contasStore.verificarSessao(conta);
-        conta.loading = false;
-      } catch (error) {
-        conta.loading = false;
-        console.log(error);
+    async openModal(conta) {
+      await this.$refs.modalNovaConta.modalNovaConta(conta);
+    },
+
+    statusConta(status) {
+      switch (status) {
+        case "Criar":
+          return "Fila de Criação";
+          break;
+        case "Criado":
+          return "Criado";
+          break;
+        case "Ativo":
+          return "Ativo";
+          break;
+        case "Atualizar_Perfil":
+          return "Fila de Atualização";
+          break;
+        case "Atualizando_Perfil":
+          return "Atualizando";
+          break;
+        case "Bloqueado":
+          return "Bloqueado";
+          break;
+        case "Em_Analise":
+          return "Aguardando Aprovação";
+          break;
+        case "Elaborando_Perfil":
+          return "Gerando Dados";
       }
     },
+    // async checarConta(conta) {
+    //   console.log("checando conta: ", conta);
+    //   conta.loading = true;
+    //   try {
+    //     await this.contasStore.verificarSessao(conta);
+    //     conta.loading = false;
+    //   } catch (error) {
+    //     conta.loading = false;
+    //     console.log(error);
+    //   }
+    // },
   },
 
   mounted() {
-    this.getAllContas();
+    this.contasStore.getAllContas();
     document.title = "Contas | BossBot";
   },
 
   watch: {
     async "contasStore.contas"() {
-      
       this.loadingConta = true;
 
-      this.contas = await this.contasStore.contas;
+      this.getAllContas();
 
       this.loadingConta = false;
-
     },
   },
 };

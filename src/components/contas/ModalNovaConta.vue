@@ -4,7 +4,7 @@
       <v-card-title
         class="py-2 pb-0 px-6 d-flex align-center justify-space-between"
       >
-        <span class="text-h6">Nova Conta</span>
+        <span class="text-h6">{{ isEditing ? "Editando Conta" : "Nova Conta" }}</span>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -16,6 +16,7 @@
               :rules="[(value) => !!value || 'Usuario é obrigatorio']"
               messages="Usuario de login do instagram"
               variant="solo"
+              :disabled="isEditing"
               required
             ></v-text-field>
           </v-col>
@@ -48,7 +49,7 @@
           </v-col>
           <!-- Conta Ativada -->
           <v-col cols="12" md="6" class="d-flex align-center justify-center ">
-            <v-radio-group v-model="conta.statusConta" inline>
+            <v-radio-group v-model="conta.statusConta" :disabled="isEditing" inline>
               <v-radio label="Ativa" value="Ativo" selected></v-radio>
               <v-radio label="Popular conta" value="Criar"></v-radio>
             </v-radio-group>
@@ -121,6 +122,7 @@
           <v-spacer class="d-none d-md-block"></v-spacer>
           <v-col>
             <v-btn
+              v-if="!isEditing"
               :loading="loadingSubmit"
               class="w-100"
               color="success"
@@ -129,6 +131,17 @@
               rounded="pill"
             >
               Cadastrar
+            </v-btn>
+            <v-btn
+              v-else
+              :loading="loadingSubmit"
+              class="w-100"
+              color="success"
+              @click="atualizarConta"
+              variant="flat"
+              rounded="pill"
+            >
+              Salvar
             </v-btn>
           </v-col>
         </v-row>
@@ -185,7 +198,6 @@ export default {
       }, 1000); // Simula um atraso de 1 segundo
     },
     async cadastrarNovaConta() {
-      console.log("chamou cadastrar conta");
       this.loadingSubmit = true;
       //   verifica se todos os campos estao preenchidos e da um trim neles
       if (
@@ -233,6 +245,56 @@ export default {
       }
     },
 
+    async atualizarConta()
+    {
+      if(!this.conta._id) return
+      this.loadingSubmit = true;
+      //   verifica se todos os campos estao preenchidos e da um trim neles
+      if (
+        this.conta.usuario &&
+        this.conta.senha &&
+        this.conta.limite &&
+        this.conta.category &&
+        this.conta.dadoRecuperacao &&
+        this.conta.senhaDadoRecuperacao &&
+        this.conta.genero &&
+        this.conta.statusConta
+      ) {
+        this.conta.usuario = this.conta.usuario.trim();
+        this.conta.senha = this.conta.senha.trim();
+        this.conta.limite = this.conta.limite.trim();
+        this.conta.dadoRecuperacao = this.conta.dadoRecuperacao.trim();
+      } else {
+        this.loadingSubmit = false;
+        return;
+      }
+
+      try {
+        const response = await this.contaStore.atualizarConta(this.conta);
+        if (!response.error) {
+          this.$emit("novaConta");
+          this.loadingSubmit = false;
+          this.dialog = false;
+          this.conta = {
+            usuario: "",
+            senha: "",
+            limite: "",
+            category: "",
+            dadoRecuperacao: "",
+            senhaDadoRecuperacao: null,
+          };
+        } else {
+          this.loadingSubmit = false;
+          this.error = response.message ?? "Ocorreu um erro inesperado";
+        }
+      } catch (error) {
+        this.loadingSubmit = false;
+        this.error =
+          error.response.data.message ?? "Ocorreu um erro inesperado";
+        console.log(error);
+      }
+    },
+
     async modalNovaConta(conta = null) {
       if (conta) {
         this.isEditing = true;
@@ -243,7 +305,6 @@ export default {
   },
   async mounted() {
     this.redesSociais = await this.servicoStore.redesSociais;
-    console.log(this.redesSociais);
   },
   watch: {
     "servicoStore.redesSociais": {
