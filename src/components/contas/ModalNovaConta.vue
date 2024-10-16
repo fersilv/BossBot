@@ -1,7 +1,9 @@
 <template>
   <v-dialog v-model="dialog" persistent max-width="650px">
     <v-card rounded="xl">
-      <v-card-title class="pt-5 pb-0 ps-6">
+      <v-card-title
+        class="py-2 pb-0 px-6 d-flex align-center justify-space-between"
+      >
         <span class="text-h6">Nova Conta</span>
       </v-card-title>
       <v-card-text>
@@ -28,6 +30,28 @@
               variant="solo"
               required
             ></v-text-field>
+          </v-col>
+          <!-- Genero -->
+          <v-col cols="12" md="6">
+            <v-select
+              @input="error = ''"
+              v-model="conta.genero"
+              label="Genero*"
+              :items="generos"
+              item-title="text"
+              item-value="value"
+              :rules="[(value) => !!value || 'Genero é obrigatorio']"
+              messages="Genero da conta"
+              variant="solo"
+              required
+            ></v-select>
+          </v-col>
+          <!-- Conta Ativada -->
+          <v-col cols="12" md="6" class="d-flex align-center justify-center ">
+            <v-radio-group v-model="conta.statusConta" inline>
+              <v-radio label="Ativa" value="Ativo" selected></v-radio>
+              <v-radio label="Popular conta" value="Criar"></v-radio>
+            </v-radio-group>
           </v-col>
           <v-col cols="12" md="8">
             <v-select
@@ -131,12 +155,16 @@ export default {
         category: "",
         dadoRecuperacao: "",
         senhaDadoRecuperacao: null,
+        statusConta: "Ativo",
+        genero: "",
       },
       loadingCancel: false,
       loadingSubmit: false,
       contaStore: useContasStore(),
       servicoStore: useServicosStore(),
       error: "",
+      generos: ["Masculino", "Feminino", "Outro"],
+      statuConta: ["Ativo", "Criar"],
     };
   },
   methods: {
