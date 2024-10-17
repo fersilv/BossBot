@@ -4,7 +4,9 @@
       <v-card-title
         class="py-2 pb-0 px-6 d-flex align-center justify-space-between"
       >
-        <span class="text-h6">{{ isEditing ? "Editando Conta" : "Nova Conta" }}</span>
+        <span class="text-h6">{{
+          isEditing ? "Editando Conta" : "Nova Conta"
+        }}</span>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -48,13 +50,17 @@
             ></v-select>
           </v-col>
           <!-- Conta Ativada -->
-          <v-col cols="12" md="6" class="d-flex align-center justify-center ">
-            <v-radio-group v-model="conta.statusConta" :disabled="isEditing" inline>
+          <v-col cols="12" md="6" class="d-flex align-center justify-center">
+            <v-radio-group
+              v-model="conta.statusConta"
+              :disabled="isEditing"
+              inline
+            >
               <v-radio label="Ativa" value="Ativo" selected></v-radio>
               <v-radio label="Popular conta" value="Criar"></v-radio>
             </v-radio-group>
           </v-col>
-          <v-col cols="12" md="8">
+          <v-col cols="12" md="4">
             <v-select
               @input="error = ''"
               v-model="conta.category"
@@ -77,6 +83,22 @@
               messages="Limite diário de ações da conta"
               variant="solo"
               required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-text-field
+              type="text"
+              v-model="conta.perfilReferencia"
+              label="Perfil Referencia*"
+              :rules="[
+                (value) =>
+                  conta.statusConta === 'Criar'
+                    ? !!value || 'Perfil de referencia é obrigatorio'
+                    : true,
+              ]"
+              messages="Perfil de referencia da conta"
+              variant="solo"
+              :required="conta.statusConta === 'Criar'"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="8">
@@ -170,6 +192,7 @@ export default {
         senhaDadoRecuperacao: null,
         statusConta: "Ativo",
         genero: "",
+        perfilReferencia: "",
       },
       loadingCancel: false,
       loadingSubmit: false,
@@ -219,6 +242,11 @@ export default {
         return;
       }
 
+      if (this.conta.statuConta == "Criar" && !this.conta.perfilReferencia) {
+        this.error = "Informe um perfil (Apenas usuario sem o @) de Referência";
+        return;
+      }
+
       try {
         const response = await this.contaStore.cadastrarConta(this.conta);
         if (!response.error) {
@@ -245,9 +273,8 @@ export default {
       }
     },
 
-    async atualizarConta()
-    {
-      if(!this.conta._id) return
+    async atualizarConta() {
+      if (!this.conta._id) return;
       this.loadingSubmit = true;
       //   verifica se todos os campos estao preenchidos e da um trim neles
       if (
