@@ -328,6 +328,8 @@ export default {
       if (conta) {
         this.isEditing = true;
         this.conta = { ...conta };
+      } else {
+        this.isEditing = false;
       }
       this.dialog = true;
     },
