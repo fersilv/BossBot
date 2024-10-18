@@ -42,7 +42,7 @@
         <v-col>
           <v-card-title class="text-center">
             <h4>{{ totalMasc }}</h4>
-            <small>CONTAS FEMININAS</small>
+            <small>CONTAS MASCULINAS</small>
           </v-card-title>
         </v-col>
         <v-col>
@@ -54,7 +54,7 @@
         <v-col>
           <v-card-title class="text-center">
             <h4>{{ totalFem }}</h4>
-            <small>CONTAS MASCULINAS</small>
+            <small>CONTAS FEMININAS</small>
           </v-card-title>
         </v-col>
       </v-row>
