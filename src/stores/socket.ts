@@ -16,6 +16,7 @@ type DefaultEventsMap = {
 export const useSocketStore = defineStore("socket", {
   state: () => ({
     socket: null as Socket<DefaultEventsMap> | null,
+    socketServer: null as Socket<DefaultEventsMap> | null,
     connected: false,
     response: null as any,
     error: null as any,
@@ -28,6 +29,19 @@ export const useSocketStore = defineStore("socket", {
         //console.warn("Socket already connected");
         return;
       }
+
+      this.socketServer = io("https://bossbot.tunn.dev ", {
+        transports: ["websocket"],
+      });
+
+      this.socketServer.on("connect", () => {
+        this.connected = true;
+      });
+
+      this.socketServer.on("disconnect", () => {
+        console.log("SocketServer.IO connection closed");
+        this.connected = false;
+      });
 
       this.socket = io(import.meta.env.VITE_URL_BACKEND_SOCKET, {
         transports: ["websocket"],
