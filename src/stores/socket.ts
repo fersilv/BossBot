@@ -51,7 +51,6 @@ export const useSocketStore = defineStore("socket", {
         //console.log("Connected to Socket.IO server");
         const appStore = useAppStore();
         appStore.getAllContents();
-        this.connected = true;
       });
 
       this.socket.on("response", (data: any) => {
@@ -90,7 +89,6 @@ export const useSocketStore = defineStore("socket", {
 
       this.socket.on("disconnect", () => {
         console.log("Socket.IO connection closed");
-        this.connected = false;
       });
 
       this.socket.on("error", (error: any) => {
