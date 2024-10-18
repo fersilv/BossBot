@@ -10,6 +10,7 @@ export const usePedidosStore = defineStore("pedidos", {
     token: useAppStore().token,
     canceled: 0,
     error: 0,
+    inRevisionCount: 0,
   }),
   actions: {
     async getAllPedidos() {
@@ -21,8 +22,6 @@ export const usePedidosStore = defineStore("pedidos", {
             },
           })
         ).data;
-
-        console.log(response);
 
         // Atualiza os pedidos
         this.pedidos = await response;
@@ -63,10 +62,11 @@ export const usePedidosStore = defineStore("pedidos", {
           // Toca som para comentários aguardando revisão
           const audio = new Audio("/sons/pedido-revisao.mp3");
           audio.play();
-
           // Verifica se a aba está ativa
           this.sendBrowserNotification(inRevisionCount);
         }
+
+        this.inRevisionCount = inRevisionCount;
       } catch (error) {
         console.log(error);
         throw error;
@@ -139,6 +139,8 @@ export const usePedidosStore = defineStore("pedidos", {
             }
           )
         ).data;
+
+        this.getAllPedidos();
         if (response.error) {
           return response;
         }

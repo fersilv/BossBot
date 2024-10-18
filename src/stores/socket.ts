@@ -25,7 +25,7 @@ export const useSocketStore = defineStore("socket", {
   actions: {
     connect() {
       if (this.socket) {
-        console.warn("Socket already connected");
+        //console.warn("Socket already connected");
         return;
       }
 
@@ -34,7 +34,7 @@ export const useSocketStore = defineStore("socket", {
       });
 
       this.socket.on("connect", () => {
-        console.log("Connected to Socket.IO server");
+        //console.log("Connected to Socket.IO server");
         const appStore = useAppStore();
         appStore.getAllContents();
         this.connected = true;
@@ -43,7 +43,7 @@ export const useSocketStore = defineStore("socket", {
       this.socket.on("response", (data: any) => {
         this.response = data;
 
-        if(data.action == "refrash"){
+        if (data.action == "refrash") {
           window.location.reload();
         }
       });
@@ -60,7 +60,6 @@ export const useSocketStore = defineStore("socket", {
 
       this.socket.on("tarefas", (data: any) => {
         try {
-
           this.tarefas = data;
         } catch (err) {
           this.tarefas = {
@@ -115,4 +114,4 @@ export const useSocketStore = defineStore("socket", {
       }
     },
   },
-}); 
+});

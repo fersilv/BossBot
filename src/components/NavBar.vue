@@ -13,7 +13,16 @@
       </v-btn>
 
       <v-btn :value="1" to="/pedidos" exact>
-        <v-icon>mdi-account-heart</v-icon>
+        <v-badge
+          v-if="revisao > 0"
+          :content="revisao"
+          overlap
+          color="warning"
+          inline
+        >
+          <v-icon>mdi-account-heart</v-icon>
+        </v-badge>
+        <v-icon v-else>mdi-account-heart</v-icon>
         <span>Pedidos</span>
       </v-btn>
 
@@ -31,8 +40,10 @@
 </template>
 
 <script>
+import { usePedidosStore } from "@/stores/pedidos";
+
 export default {
-  data: () => ({ value: 0 }), // Coloquei para começar no Dashboard
+  data: () => ({ value: 0, revisao: 0, pedidosStore: usePedidosStore() }), // Coloquei para começar no Dashboard
 
   computed: {
     color() {
@@ -58,12 +69,20 @@ export default {
       this.$router.push(routes[this.value]);
     },
   },
+  watch: {
+    "pedidosStore.inRevisionCount": {
+      immediate: true,
+      handler() {
+        this.revisao = this.pedidosStore.inRevisionCount;
+      },
+    },
+  },
 };
 </script>
 
 <style>
 html {
   overflow: auto;
-  max-height: calc(100vh - 56px)!important;
+  max-height: calc(100vh - 56px) !important;
 }
 </style>

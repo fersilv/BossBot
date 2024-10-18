@@ -25,24 +25,24 @@
   <v-container fluid class="pa-10 pt-0">
     <v-card class="pa-3">
       <v-progress-linear
-      :location="null"
-      bg-color="#92aed9"
-      buffer-color="red"
-      buffer-opacity="1"
-      :buffer-value="relatorio.porcentagemFem"
-      color="#12512a"
-      height="12"
-      :max="relatorio.porcentagemFem"
-      min="0"
-      :model-value="relatorio.porcentagemMasc"
-      rounded
-      reverse
-    ></v-progress-linear>
+        :location="null"
+        bg-color="#92aed9"
+        buffer-color="red"
+        buffer-opacity="1"
+        :buffer-value="relatorio.porcentagemFem"
+        color="#12512a"
+        height="12"
+        :max="relatorio.porcentagemFem"
+        min="0"
+        :model-value="relatorio.porcentagemMasc"
+        rounded
+        reverse
+      ></v-progress-linear>
       <v-row>
         <v-col>
           <v-card-title class="text-center">
             <h4>{{ totalMasc }}</h4>
-            <small>CONTAS DE USUARIOS</small>
+            <small>CONTAS FEMININAS</small>
           </v-card-title>
         </v-col>
         <v-col>
@@ -54,7 +54,7 @@
         <v-col>
           <v-card-title class="text-center">
             <h4>{{ totalFem }}</h4>
-            <small>CONTAS DE USUARIOS</small>
+            <small>CONTAS MASCULINAS</small>
           </v-card-title>
         </v-col>
       </v-row>
@@ -170,9 +170,10 @@
               :color="'green'"
               size="x-small"
               :loading="item.loading"
-              :icon="'mdi-cloud-key-outline'"
+              :icon="'mdi-safe-skip'"
               class="mx-2"
               title="Autenticar com Senha"
+              disabled
             >
             </v-btn>
           </template>
@@ -224,8 +225,18 @@ export default {
         { title: "Usuario", value: "usuario", sortable: true, width: "auto" },
         { title: "Gênero", value: "genero", sortable: true, width: "auto" },
         { title: "Limite", value: "limite", sortable: true, width: "auto" },
-        { title: "Uso Geral", value: "quantidadeUsada", sortable: true, width: "auto" },
-        { title: "Uso Diário", value: "usoDiario", sortable: true, width: "auto" },
+        {
+          title: "Uso Geral",
+          value: "quantidadeUsada",
+          sortable: true,
+          width: "auto",
+        },
+        {
+          title: "Uso Diário",
+          value: "usoDiario",
+          sortable: true,
+          width: "auto",
+        },
         {
           title: "Rede Social",
           value: "category",
@@ -278,8 +289,6 @@ export default {
 
   methods: {
     async getAllContas(store = false) {
-      console.log("getAllContas");
-
       if (store) {
         await this.contasStore.getAllContas();
       }
@@ -399,7 +408,6 @@ export default {
         (relatorio.outro.total / relatorio.totalGeral) * 100
       );
 
-      console.log(relatorio);
       this.relatorio = relatorio;
       return relatorio;
     },

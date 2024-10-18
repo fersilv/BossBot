@@ -52,12 +52,13 @@
           </v-col>
           <!-- Conta Ativada -->
           <v-col cols="12" md="6" class="d-flex align-center justify-center">
-            <v-radio-group
-              v-model="conta.statusConta"
-              inline
-            >
+            <v-radio-group v-model="conta.statusConta" inline>
               <v-radio label="Ativa" value="Ativo" selected></v-radio>
-              <v-radio label="Popular conta" value="Criar" :disabled="isEditing"></v-radio>
+              <v-radio
+                label="Popular conta"
+                value="Criar"
+                :disabled="isEditing"
+              ></v-radio>
             </v-radio-group>
           </v-col>
           <v-col cols="12" md="4">
@@ -236,7 +237,7 @@ export default {
       ) {
         this.conta.usuario = this.conta.usuario.trim();
         this.conta.senha = this.conta.senha.trim();
-        this.conta.limite = this.conta.limite.trim();
+        this.conta.perfilReferencia = this.conta.perfilReferencia.trim();
         this.conta.dadoRecuperacao = this.conta.dadoRecuperacao.trim();
       } else {
         this.loadingSubmit = false;
@@ -290,7 +291,7 @@ export default {
       ) {
         this.conta.usuario = this.conta.usuario.trim();
         this.conta.senha = this.conta.senha.trim();
-        this.conta.limite = this.conta.limite.trim();
+        this.conta.perfilReferencia = this.conta.perfilReferencia.trim();
         this.conta.dadoRecuperacao = this.conta.dadoRecuperacao.trim();
       } else {
         this.loadingSubmit = false;
