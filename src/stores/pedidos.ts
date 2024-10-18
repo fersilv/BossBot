@@ -37,7 +37,7 @@ export const usePedidosStore = defineStore("pedidos", {
 
         if (errorCount > this.error) {
           if (this.error > 0) {
-            const audio = new Audio("dist/sons/pedido-erro.mp3");
+            const audio = new Audio("/sons/pedido-erro.mp3");
             audio.play();
           }
           this.error = errorCount;
@@ -45,7 +45,7 @@ export const usePedidosStore = defineStore("pedidos", {
 
         if (canceledCount > this.canceled) {
           if (this.canceled > 0) {
-            const audio = new Audio("dist/sons/pedido-cancelado.mp3");
+            const audio = new Audio("/sons/pedido-cancelado.mp3");
             audio.play();
           }
           this.canceled = canceledCount;
@@ -61,7 +61,7 @@ export const usePedidosStore = defineStore("pedidos", {
 
         if (inRevisionCount > 0) {
           // Toca som para comentários aguardando revisão
-          const audio = new Audio("dist/sons/pedido-revisao.mp3");
+          const audio = new Audio("/sons/pedido-revisao.mp3");
           audio.play();
 
           // Verifica se a aba está ativa
@@ -142,7 +142,7 @@ export const usePedidosStore = defineStore("pedidos", {
     async acoes(data: any) {
       switch (data.type) {
         case "create":
-          const audio = new Audio("dist/sons/novo-pedido.mp3");
+          const audio = new Audio("/sons/novo-pedido.mp3");
           audio.play();
           await this.getAllPedidos();
           this.pedido++;
