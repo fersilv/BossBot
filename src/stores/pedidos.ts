@@ -75,15 +75,31 @@ export const usePedidosStore = defineStore("pedidos", {
 
     sendBrowserNotification(commentsCount: number) {
       if (Notification.permission === "granted") {
-        new Notification("Revisão de Comentários", {
-          body: `Existem ${commentsCount} comentários aguardando revisão.`,
+        navigator.serviceWorker.getRegistration().then(function (registration) {
+          if (registration) {
+            registration.showNotification("Nova tarefa", {
+              body: `Existem ${commentsCount} comentários aguardando revisão.`,
+              // icon: '/path/to/icon.png',
+              //vibrate: [200, 100, 200],  // Para dar um feedback tátil em dispositivos móveis
+              tag: "revisao-comentarios", // Evita a duplicação de notificações
+            });
+          }
         });
       } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {
-            new Notification("Revisão de Comentários", {
-              body: `Existem ${commentsCount} comentários aguardando revisão.`,
-            });
+            navigator.serviceWorker
+              .getRegistration()
+              .then(function (registration) {
+                if (registration) {
+                  registration.showNotification("Nova Tarefa", {
+                    body: `Existem ${commentsCount} comentários aguardando revisão.`,
+                    // icon: '/path/to/icon.png',
+                    //vibrate: [200, 100, 200],
+                    tag: "revisao-comentarios",
+                  });
+                }
+              });
           }
         });
       }
