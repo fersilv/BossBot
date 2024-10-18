@@ -31,7 +31,7 @@
         buffer-opacity="1"
         :buffer-value="relatorio.porcentagemFem"
         color="#12512a"
-        height="12"
+        height="6"
         :max="relatorio.porcentagemFem"
         min="0"
         :model-value="relatorio.porcentagemMasc"
