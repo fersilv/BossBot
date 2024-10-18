@@ -276,13 +276,15 @@ export default {
     },
 
     async atualizarConta() {
+      console.log(this.conta);
+
       if (!this.conta._id) return;
       this.loadingSubmit = true;
       //   verifica se todos os campos estao preenchidos e da um trim neles
       if (
         this.conta.usuario &&
         this.conta.senha &&
-        this.conta.limite &&
+        this.conta.limite !== undefined &&
         this.conta.category &&
         this.conta.dadoRecuperacao &&
         this.conta.senhaDadoRecuperacao &&
@@ -295,9 +297,11 @@ export default {
         this.conta.dadoRecuperacao = this.conta.dadoRecuperacao.trim();
       } else {
         this.loadingSubmit = false;
+        console.log("ta faltando coisa");
         return;
       }
 
+      console.log("chegou aqui");
       try {
         const response = await this.contaStore.atualizarConta(this.conta);
         if (!response.error) {
