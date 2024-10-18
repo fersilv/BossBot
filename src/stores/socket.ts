@@ -30,7 +30,7 @@ export const useSocketStore = defineStore("socket", {
         return;
       }
 
-      this.socketServer = io("https://bossbot.tunn.dev ", {
+      this.socketServer = io("https://bossbot.tunn.dev", {
         transports: ["websocket"],
       });
 
