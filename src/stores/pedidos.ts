@@ -8,6 +8,8 @@ export const usePedidosStore = defineStore("pedidos", {
     pedidos: [] as any,
     pedido: 0,
     token: useAppStore().token,
+    canceled: 0,
+    error: 0,
   }),
   actions: {
     async getAllPedidos() {
@@ -15,32 +17,94 @@ export const usePedidosStore = defineStore("pedidos", {
         const response = (
           await axios.get(import.meta.env.VITE_URL_BACKEND + "pedido", {
             headers: {
-              'Authorization': `Bearer ${this.token}`
+              Authorization: `Bearer ${this.token}`,
             },
           })
         ).data;
-        console.log(response)
+
+        console.log(response);
+
+        // Atualiza os pedidos
         this.pedidos = await response;
+
+        // Atualiza contadores de 'cancelado' e 'erro'
+        const errorCount = this.pedidos.filter(
+          (item: any) => item.status === "Error"
+        ).length;
+        const canceledCount = this.pedidos.filter(
+          (item: any) => item.status === "Canceled"
+        ).length;
+
+        if (errorCount > this.error) {
+          if (this.error > 0) {
+            const audio = new Audio("./public/sons/pedido-erro.mp3");
+            audio.play();
+          }
+          this.error = errorCount;
+        }
+
+        if (canceledCount > this.canceled) {
+          if (this.canceled > 0) {
+            const audio = new Audio("./public/sons/pedido-cancelado.mp3");
+            audio.play();
+          }
+          this.canceled = canceledCount;
+        }
+
+        const inRevisionCount = this.pedidos.filter(
+          (item: any) =>
+            item.comments &&
+            item.comments.some(
+              (comment: any) => comment.statusComentario === "InRevision"
+            )
+        ).length;
+
+        if (inRevisionCount > 0) {
+          // Toca som para comentários aguardando revisão
+          const audio = new Audio("./public/sons/pedido-revisao.mp3");
+          audio.play();
+
+          // Verifica se a aba está ativa
+          this.sendBrowserNotification(inRevisionCount);
+        }
       } catch (error) {
         console.log(error);
         throw error;
       }
     },
 
-    async priorizarPedidoOuCancelar(id:any,acao:any)
-    {
+    sendBrowserNotification(commentsCount: number) {
+      if (Notification.permission === "granted") {
+        new Notification("Revisão de Comentários", {
+          body: `Existem ${commentsCount} comentários aguardando revisão.`,
+        });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification("Revisão de Comentários", {
+              body: `Existem ${commentsCount} comentários aguardando revisão.`,
+            });
+          }
+        });
+      }
+    },
+
+    async priorizarPedidoOuCancelar(id: any, acao: any) {
       try {
         const response = (
-          await axios.patch(import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id, {
-            headers: {
-              'Authorization': `Bearer ${this.token}`
-            },
-          })
+          await axios.patch(
+            import.meta.env.VITE_URL_BACKEND + "pedido/" + acao + "/" + id,
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+          )
         ).data;
-        console.log(response)
+        console.log(response);
         return response;
       } catch (error) {
-        console.log("Erro ao cancelar/Priorizar pedido",error);
+        console.log("Erro ao cancelar/Priorizar pedido", error);
       }
     },
 
@@ -51,12 +115,14 @@ export const usePedidosStore = defineStore("pedidos", {
         const response = (
           await axios.patch(
             import.meta.env.VITE_URL_BACKEND + "pedido/comentario",
-            data, {
+            data,
+            {
               headers: {
-                'Authorization': `Bearer ${this.token}`
+                Authorization: `Bearer ${this.token}`,
               },
-            })
-          ).data;
+            }
+          )
+        ).data;
         if (response.error) {
           return response;
         }
@@ -76,6 +142,8 @@ export const usePedidosStore = defineStore("pedidos", {
     async acoes(data: any) {
       switch (data.type) {
         case "create":
+          const audio = new Audio("./public/sons/novo-pedido.mp3");
+          audio.play();
           await this.getAllPedidos();
           this.pedido++;
           break;

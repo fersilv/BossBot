@@ -46,6 +46,7 @@
               :rules="[(value) => !!value || 'Genero é obrigatorio']"
               messages="Genero da conta"
               variant="solo"
+              :disabled="isEditing"
               required
             ></v-select>
           </v-col>
@@ -53,11 +54,10 @@
           <v-col cols="12" md="6" class="d-flex align-center justify-center">
             <v-radio-group
               v-model="conta.statusConta"
-              :disabled="isEditing"
               inline
             >
               <v-radio label="Ativa" value="Ativo" selected></v-radio>
-              <v-radio label="Popular conta" value="Criar"></v-radio>
+              <v-radio label="Popular conta" value="Criar" :disabled="isEditing"></v-radio>
             </v-radio-group>
           </v-col>
           <v-col cols="12" md="4">
@@ -71,6 +71,7 @@
               :rules="[(value) => !!value || 'Rede Social é obrigatorio']"
               messages="Rede Social do Serviço"
               variant="solo"
+              :disabled="isEditing"
               required
             ></v-select>
           </v-col>

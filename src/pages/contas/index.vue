@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="pa-10">
-    <v-card class="pa-3 mt-6">
+  <v-container fluid class="pa-10 pb-4-">
+    <v-card class="pa-3 mt-6" elevation="0">
       <v-data-title>
         <v-row>
           <v-col cols="auto">CONTAS DE USUARIOS</v-col>
@@ -21,18 +21,113 @@
       </v-data-title>
     </v-card>
   </v-container>
+
   <v-container fluid class="pa-10 pt-0">
+    <v-card class="pa-3">
+      <v-progress-linear
+      :location="null"
+      bg-color="#92aed9"
+      buffer-color="red"
+      buffer-opacity="1"
+      :buffer-value="relatorio.porcentagemFem"
+      color="#12512a"
+      height="12"
+      :max="relatorio.porcentagemFem"
+      min="0"
+      :model-value="relatorio.porcentagemMasc"
+      rounded
+      reverse
+    ></v-progress-linear>
+      <v-row>
+        <v-col>
+          <v-card-title class="text-center">
+            <h4>{{ totalMasc }}</h4>
+            <small>CONTAS DE USUARIOS</small>
+          </v-card-title>
+        </v-col>
+        <v-col>
+          <v-card-title class="text-center">
+            <h4>{{ totalGeral }}</h4>
+            <small>CONTAS DE USUARIOS</small>
+          </v-card-title>
+        </v-col>
+        <v-col>
+          <v-card-title class="text-center">
+            <h4>{{ totalFem }}</h4>
+            <small>CONTAS DE USUARIOS</small>
+          </v-card-title>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-container>
+
+  <!-- Filtros -->
+  <v-container fluid class="pa-10 pt-0">
+    <v-row>
+      <v-col cols="12" md="4">
+        <v-text-field
+          variant="solo"
+          v-model="search"
+          label="Buscar Conta"
+          clearable
+          outlined
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="2">
+        <v-select
+          variant="solo"
+          v-model="selectedGenero"
+          :items="generos"
+          label="Gênero"
+          clearable
+          outlined
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="2">
+        <v-select
+          variant="solo"
+          v-model="selectedRedeSocial"
+          :items="redesSociais"
+          label="Rede Social"
+          clearable
+          outlined
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="2">
+        <v-select
+          variant="solo"
+          v-model="selectedStatus"
+          :items="statusOptions"
+          label="Status"
+          clearable
+          outlined
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="2">
+        <v-select
+          variant="solo"
+          v-model="selectedStatusConta"
+          :items="statusContaOptions"
+          label="Status Conta"
+          clearable
+          outlined
+        ></v-select>
+      </v-col>
+    </v-row>
+
+    <!-- Tabela de dados -->
     <v-card rounded="lg" class="pa-3">
       <v-data-title></v-data-title>
       <v-data-text>
         <v-data-table
           :headers="headers"
-          :items="contas"
+          :items="filteredContas"
           :loading="loadingConta"
           :loading-text="'Carregando...'"
           :items-per-page-text="'Exibir'"
           :items-per-page-options="[5, 10, 50, 100, -1]"
-          :no-data-text="'Nenhuma conta encontrado'"
+          :items-per-page="5"
+          :no-data-text="'Nenhuma conta encontrada'"
         >
           <!-- data brasileira -->
           <template v-slot:item.dataCriacao="{ item }">
@@ -43,9 +138,12 @@
               item.status === "true" ? "Ativa" : "Inativa"
             }}</v-chip>
           </template>
+          <template v-slot:item.statusConta="{ item }">
+            {{ statusConta(item.statusConta) }}
+          </template>
           <template v-slot:item.btn="{ item }">
             <v-btn
-            v-show="false"
+              v-show="false"
               color="red"
               size="x-small"
               @click="deleteConta(item)"
@@ -78,24 +176,14 @@
             >
             </v-btn>
           </template>
-          <template v-slot:item.acao="{ item }">
-            <spam>
-              {{
-                item.status == "false"
-                  ? "Sem Autenticação"
-                  : item.acao ?? "Parado"
-              }}
-            </spam>
-          </template>
-
-          <template v-slot:item.statusConta="{ item }">
-            {{ statusConta(item.statusConta) }}
-          </template>
         </v-data-table>
       </v-data-text>
     </v-card>
   </v-container>
-  <ModalNovaConta ref="modalNovaConta" @novaConta="loadingConta = true, getAllContas(true)" />
+  <ModalNovaConta
+    ref="modalNovaConta"
+    @novaConta="(loadingConta = true), getAllContas(true)"
+  />
 </template>
 
 <script>
@@ -109,35 +197,90 @@ export default {
   },
   data() {
     return {
+      search: "",
+      selectedGenero: null,
+      selectedRedeSocial: null,
+      selectedStatus: null,
+      selectedStatusConta: null,
+      totalGeral: 0,
+      totalMasc: 0,
+      totalFem: 0,
+      relatorio: {},
+      generos: [],
+      redesSociais: [],
+      statusOptions: [],
+      statusContaOptions: [],
+
       contas: [],
       headers: [
-        { title: "Identificador", value: "_id", width: "10px" },
+        { title: "Identificador", value: "_id", sortable: true, width: "10px" },
         {
           title: "Criado",
           align: "center",
           value: "dataCriacao",
+          sortable: true,
           width: "auto",
         },
-        { title: "Usuario", value: "usuario" },
-        { title: "Gênero", value: "genero", width: "auto" },
-        { title: "Limite", value: "limite", width: "auto" },
-        { title: "Uso Geral", value: "quantidadeUsada", width: "auto" },
-        { title: "Uso Diário", value: "usoDiario", width: "auto" },
-        { title: "Status", value: "status", width: "auto" },
-        { title: "Conta", value: "statusConta", width: "auto" },
-        { title: "Ação", value: "acao", width: "auto" },
-        { title: "", value: "btn" },
+        { title: "Usuario", value: "usuario", sortable: true, width: "auto" },
+        { title: "Gênero", value: "genero", sortable: true, width: "auto" },
+        { title: "Limite", value: "limite", sortable: true, width: "auto" },
+        { title: "Uso Geral", value: "quantidadeUsada", sortable: true, width: "auto" },
+        { title: "Uso Diário", value: "usoDiario", sortable: true, width: "auto" },
+        {
+          title: "Rede Social",
+          value: "category",
+          sortable: true,
+          width: "auto",
+        },
+        { title: "Status", value: "status", sortable: true, width: "auto" },
+        { title: "Conta", value: "statusConta", sortable: true, width: "auto" },
+        { title: "", value: "btn", sortable: false, width: "auto" },
       ],
       contasStore: useContasStore(),
       loadingConta: false,
     };
   },
 
+  computed: {
+    filteredContas() {
+      return this.contas.filter((conta) => {
+        const matchesSearch =
+          !this.search ||
+          conta.usuario.toLowerCase().includes(this.search.toLowerCase()) ||
+          conta._id.toLowerCase().includes(this.search.toLowerCase());
+
+        const matchesGenero =
+          this.selectedGenero === null || conta.genero === this.selectedGenero;
+
+        const matchesRedeSocial =
+          this.selectedRedeSocial === null ||
+          conta.category === this.selectedRedeSocial;
+
+        const matchesStatus =
+          this.selectedStatus === null ||
+          (this.selectedStatus === "Ativa" && conta.status === "true") ||
+          (this.selectedStatus === "Inativa" && conta.status === "false");
+
+        const matchesStatusConta =
+          this.selectedStatusConta === null ||
+          conta.statusConta === this.selectedStatusConta;
+
+        return (
+          matchesSearch &&
+          matchesGenero &&
+          matchesRedeSocial &&
+          matchesStatus &&
+          matchesStatusConta
+        );
+      });
+    },
+  },
+
   methods: {
     async getAllContas(store = false) {
       console.log("getAllContas");
 
-      if(store) {
+      if (store) {
         await this.contasStore.getAllContas();
       }
 
@@ -150,14 +293,136 @@ export default {
           };
         });
 
+        // Extraindo as opções dinamicamente das contas
+        this.extractFilterOptions();
       } catch (error) {
         console.log(error);
       }
       this.loadingConta = false;
     },
-    async createConta() {},
-    async deleteConta() {},
-    async updateConta() {},
+
+    async totalContas() {
+      const contasTotais = await this.contasStore.contas;
+
+      const relatorio = {
+        totalGeral: contasTotais.length,
+        masculino: {
+          total: 0,
+          status: {},
+          contas: {},
+          redesSociais: {},
+        },
+        feminino: {
+          total: 0,
+          status: {},
+          contas: {},
+          redesSociais: {},
+        },
+        outro: {
+          total: 0,
+          status: {},
+          contas: {},
+          redesSociais: {},
+        },
+        geral: {
+          status: {},
+          contas: {},
+          redesSociais: {},
+        },
+      };
+
+      contasTotais.forEach((conta) => {
+        const genero = conta.genero.toLowerCase();
+
+        // Determine qual categoria de gênero o registro pertence
+        let generoKey = "";
+        if (genero === "masculino") {
+          generoKey = "masculino";
+        } else if (genero === "feminino") {
+          generoKey = "feminino";
+        } else {
+          generoKey = "outro";
+        }
+
+        // Incrementa o total para o gênero
+        relatorio[generoKey].total += 1;
+
+        // Status (ativa/inativa)
+        const statusKey = conta.status === "true" ? "Ativa" : "Inativa";
+        if (!relatorio[generoKey].status[statusKey]) {
+          relatorio[generoKey].status[statusKey] = 0;
+        }
+        relatorio[generoKey].status[statusKey] += 1;
+
+        if (!relatorio.geral.status[statusKey]) {
+          relatorio.geral.status[statusKey] = 0;
+        }
+        relatorio.geral.status[statusKey] += 1;
+
+        // Status da conta (statusConta)
+        const statusContaKey = conta.statusConta;
+        if (!relatorio[generoKey].contas[statusContaKey]) {
+          relatorio[generoKey].contas[statusContaKey] = 0;
+        }
+        relatorio[generoKey].contas[statusContaKey] += 1;
+
+        if (!relatorio.geral.contas[statusContaKey]) {
+          relatorio.geral.contas[statusContaKey] = 0;
+        }
+        relatorio.geral.contas[statusContaKey] += 1;
+
+        // Redes sociais (category)
+        const redeSocialKey = conta.category;
+        if (!relatorio[generoKey].redesSociais[redeSocialKey]) {
+          relatorio[generoKey].redesSociais[redeSocialKey] = 0;
+        }
+        relatorio[generoKey].redesSociais[redeSocialKey] += 1;
+
+        if (!relatorio.geral.redesSociais[redeSocialKey]) {
+          relatorio.geral.redesSociais[redeSocialKey] = 0;
+        }
+        relatorio.geral.redesSociais[redeSocialKey] += 1;
+      });
+
+      this.totalGeral = relatorio.totalGeral;
+      this.totalMasc = relatorio.masculino.total;
+      this.totalFem = relatorio.feminino.total;
+      this.totalOutro = relatorio.outro.total;
+
+      relatorio.porcentagemMasc = Math.round(
+        (relatorio.masculino.total / relatorio.totalGeral) * 100
+      );
+      relatorio.porcentagemFem = Math.round(
+        (relatorio.feminino.total / relatorio.totalGeral) * 100
+      );
+      relatorio.porcentagemOutro = Math.round(
+        (relatorio.outro.total / relatorio.totalGeral) * 100
+      );
+
+      console.log(relatorio);
+      this.relatorio = relatorio;
+      return relatorio;
+    },
+
+    extractFilterOptions() {
+      const generosSet = new Set();
+      const redesSociaisSet = new Set();
+      const statusSet = new Set();
+      const statusContaSet = new Set();
+
+      this.contas.forEach((conta) => {
+        generosSet.add(conta.genero);
+        redesSociaisSet.add(conta.category);
+        statusSet.add(conta.status === "true" ? "Ativa" : "Inativa");
+        statusContaSet.add(conta.statusConta);
+      });
+
+      this.generos = [...generosSet];
+      this.redesSociais = [...redesSociaisSet];
+      this.statusOptions = [...statusSet];
+      this.statusContaOptions = [...statusContaSet];
+    },
+
     async openModal(conta) {
       await this.$refs.modalNovaConta.modalNovaConta(conta);
     },
@@ -166,51 +431,39 @@ export default {
       switch (status) {
         case "Criar":
           return "Fila de Criação";
-          break;
         case "Criado":
           return "Criado";
-          break;
         case "Ativo":
           return "Ativo";
-          break;
         case "Atualizar_Perfil":
           return "Fila de Atualização";
-          break;
         case "Atualizando_Perfil":
           return "Atualizando";
-          break;
         case "Bloqueado":
           return "Bloqueado";
-          break;
         case "Em_Analise":
-          return "Aguardando Aprovação";
-          break;
+          return "Suspensa em analise";
         case "Elaborando_Perfil":
           return "Gerando Dados";
+        case "Inativo":
+          return "Desativado";
+        case "Quarentena":
+          return "Quarentena";
+        case "Interacao_Interna":
+          return "Aquecendo";
       }
     },
-    // async checarConta(conta) {
-    //   console.log("checando conta: ", conta);
-    //   conta.loading = true;
-    //   try {
-    //     await this.contasStore.verificarSessao(conta);
-    //     conta.loading = false;
-    //   } catch (error) {
-    //     conta.loading = false;
-    //     console.log(error);
-    //   }
-    // },
   },
 
   mounted() {
-    this.contasStore.getAllContas();
+    this.getAllContas(true);
     document.title = "Contas | BossBot";
   },
 
   watch: {
     async "contasStore.contas"() {
-
       await this.getAllContas();
+      await this.totalContas();
     },
   },
 };
